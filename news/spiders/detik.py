@@ -2,6 +2,7 @@
 import scrapy
 from datetime import datetime
 from news.items import NewsItem
+from news.lib import to_number_of_month
 
 
 class DetikSpider(scrapy.Spider):
@@ -30,21 +31,14 @@ class DetikSpider(scrapy.Spider):
             url = href.css('a::attr(href)').get()
             yield scrapy.Request(url, callback=self.parse_detail)
 
-    def to_number_of_month(self, month_str):
-        month_lst = [('januari', '01'), ('februari', '02'), ('maret', '03'), ('april', '04'),
-                     ('mei', '05'), ('juni', '06'), ('juli', '07'), ('agustus', '08'),
-                     ('september', '09'), ('oktober', '10'), ('november', '11'), ('december', '12')]
-        month = [x[1] for x in month_lst if x[0] == month_str]
-        return ''.join(month)
-
     def date_parse(self, date_string):
         date_lst = date_string.split(' ')
         if len(date_lst) != 3:
             date_lst = date_lst[1:-1]
-            date_str = '{}/{}/{} {}'.format(date_lst[0],
-                                            self.to_number_of_month(date_lst[1].lower()),
+            date_str = '{}/{}/{} {}:00'.format(date_lst[0],
+                                            to_number_of_month(date_lst[1].lower()),
                                             date_lst[2].replace(',', ''), date_lst[3])
-            date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
+            date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
         else:
             date_lst = date_lst[:-1]
             date_str = ' '.join(date_lst)

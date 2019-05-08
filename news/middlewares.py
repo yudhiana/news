@@ -81,14 +81,17 @@ class NewsDownloaderMiddleware(object):
         # - or return a Request object
         # - or raise IgnoreRequest: process_exception() methods of
         #   installed downloader middleware will be called
-        buffer = StringIO()
-        c = pycurl.Curl()
-        c.setopt(c.URL, request.url)
-        c.setopt(c.WRITEDATA, buffer)
-        c.perform()
-        c.close()
-        body = buffer.getvalue()
-        return HtmlResponse(request.url, body=body, encoding='utf-8', request=request)
+        if spider.name == 'tribun':
+            buffer = StringIO()
+            c = pycurl.Curl()
+            c.setopt(c.URL, request.url)
+            c.setopt(c.WRITEDATA, buffer)
+            c.perform()
+            c.close()
+            body = buffer.getvalue()
+            return HtmlResponse(request.url, body=body, encoding='utf-8', request=request)
+        else:
+            return None
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.

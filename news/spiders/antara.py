@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import re
+from news.lib import to_number_of_month
+from datetime import datetime
+
 from news.items import NewsItem
 from bs4 import BeautifulSoup
 
 
 class AntaraSpider(scrapy.Spider):
     name = 'antara'
-    allowed_domains = ['antaranews.com']
+    allowed_domains = ['www.antaranews.com']
     start_urls = ['http://www.antaranews.com/terkini']
 
     def parse(self, response):
@@ -21,21 +24,33 @@ class AntaraSpider(scrapy.Spider):
                 for page in pages:
                     yield scrapy.Request(url=page, callback=self.parse)
 
+    def date_parse(self, date_string):
+        date_lst = date_string.split(' ')
+        month = to_number_of_month(date_lst[2].lower())
+        date_str = '{}/{}/{} {}:00'.format(date_lst[1],
+                                          month,
+                                          date_lst[3],
+                                          date_lst[4])
+        print date_str
+        return datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
 
     def parse_detail(self, response):
-        item = NewsItem()
-        self.clean_content(response)
-        author_lst = response.css('p.text-muted.small.mt10::text').getall()[:-1]
-        author_lst = [re.sub('[\r\t\n]', '', x).lower() for x in author_lst]
-        author_lst = [x.replace('editor:', '').replace('reporter:', '').replace(' ', '') for x in author_lst]
-        author_lst = [x for x in author_lst if len(x) != 0]
-        item['title'] = response.css('h1.post-title::text').get()
-        item['link'] = response.url
-        item['date_post_id'] = response.css('span.article-date ::text').get()
-        item['author'] = ''.join(author_lst)
-        item['content'] = ''.join(response.css('.post-content ::text').getall())
-        return item
-
-    def clean_content(self, response):
-        soup = BeautifulSoup(response.body, 'html.parser')
-        print(soup.prettify())
+        if re.search('.*www\.antaranews\.com\/berita*', response.url):
+            item = NewsItem()
+            author_lst = response.css('p.text-muted.small.mt10::text').getall()[:-1]
+            author_lst = [re.sub('[\r\t\n]', '', x).lower() for x in author_lst]
+            author_lst = [x.lower().replace('editor:', '').replace('pewarta:', '').replace('penerjemah:', '').strip()
+                          for x in author_lst]
+            author_lst = [x for x in author_lst if len(x) != 0]
+            title = response.css('h1.post-title::text').get()
+            link = response.url
+            date_string = response.css('span.article-date ::text').get().strip()
+            author = '-'.join(author_lst)
+            content = ''.join(response.css('.entry-content ::text').getall())
+            item['title'] = title
+            item['link'] = link
+            item['date_post'] = self.date_parse(date_string)
+            item['date_post_id'] = date_string
+            item['author'] = author
+            # item['content'] = content
+            return item
