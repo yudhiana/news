@@ -28,28 +28,38 @@ class AntaraSpider(scrapy.Spider):
         date_lst = date_string.split(' ')
         month = to_number_of_month(date_lst[2].lower())
         date_str = '{}/{}/{} {}:00'.format(date_lst[1],
-                                          month,
-                                          date_lst[3],
-                                          date_lst[4])
+                                           month,
+                                           date_lst[3],
+                                           date_lst[4])
         return datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
+
+    def clean_content(self, content):
+        content = content.replace('\t','').\
+            replace('\r','')
+        return content
 
     def parse_detail(self, response):
         if re.search('.*www\.antaranews\.com\/berita*', response.url):
             item = NewsItem()
             author_lst = response.css('p.text-muted.small.mt10::text').getall()[:-1]
             author_lst = [re.sub('[\r\t\n]', '', x).lower() for x in author_lst]
-            author_lst = [x.lower().replace('editor:', '').replace('pewarta:', '').replace('penerjemah:', '').strip()
+            author_lst = [x.lower().replace('editor:', ''). \
+                              replace('pewarta:', ''). \
+                              replace('penerjemah:', ''). \
+                              strip()
                           for x in author_lst]
             author_lst = [x for x in author_lst if len(x) != 0]
             title = response.css('h1.post-title::text').get()
             link = response.url
             date_string = response.css('span.article-date ::text').get().strip()
-            author = '-'.join(author_lst)
-            content = ''.join(response.css('.entry-content ::text').getall())
+            author = ' - '.join(author_lst)
+            content_lst = response.css('.post-content.clearfix::text').getall()
+            content_lst = [self.clean_content(x) for x in content_lst]
+
             item['title'] = title
             item['link'] = link
             item['date_post'] = self.date_parse(date_string)
             item['date_post_id'] = date_string
             item['author'] = author
-            # item['content'] = content
+            item['content'] = self.clean_content(''.join(content_lst))
             return item
