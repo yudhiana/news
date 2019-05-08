@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3728b704-0d8a-4059-92e4-c25f4b16c11f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/news/lib.py" beforeDir="false" afterPath="$PROJECT_DIR$/news/lib.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/news/spiders/antara.py" beforeDir="false" afterPath="$PROJECT_DIR$/news/spiders/antara.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/news/spiders/detik.py" beforeDir="false" afterPath="$PROJECT_DIR$/news/spiders/detik.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/news/spiders/kompas.py" beforeDir="false" afterPath="$PROJECT_DIR$/news/spiders/kompas.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/news/spiders/liputan6.py" beforeDir="false" afterPath="$PROJECT_DIR$/news/spiders/liputan6.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/news/spiders/okezone.py" beforeDir="false" afterPath="$PROJECT_DIR$/news/spiders/okezone.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/news/spiders/sindo.py" beforeDir="false" afterPath="$PROJECT_DIR$/news/spiders/sindo.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -17,13 +12,25 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/news/spiders/okezone.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="590">
-              <caret line="48" column="41" selection-start-line="48" selection-start-column="41" selection-end-line="48" selection-end-column="41" />
+            <state relative-caret-position="14">
+              <caret line="13" column="65" selection-start-line="13" selection-start-column="65" selection-end-line="13" selection-end-column="65" />
               <folding>
                 <element signature="e#24#37#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/news/spiders/sindo.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="450">
+              <caret line="54" column="96" selection-start-line="54" selection-start-column="96" selection-end-line="54" selection-end-column="96" />
+              <folding>
+                <element signature="e#25#38#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -61,6 +68,7 @@
         <option value="$PROJECT_DIR$/news/spiders/detik.py" />
         <option value="$PROJECT_DIR$/news/spiders/liputan6.py" />
         <option value="$PROJECT_DIR$/news/spiders/okezone.py" />
+        <option value="$PROJECT_DIR$/news/spiders/sindo.py" />
       </list>
     </option>
   </component>
@@ -298,10 +306,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/news/spiders/okezone.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="590">
-          <caret line="48" column="41" selection-start-line="48" selection-start-column="41" selection-end-line="48" selection-end-column="41" />
+        <state relative-caret-position="14">
+          <caret line="13" column="65" selection-start-line="13" selection-start-column="65" selection-end-line="13" selection-end-column="65" />
           <folding>
             <element signature="e#24#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/news/spiders/sindo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="54" column="96" selection-start-line="54" selection-start-column="96" selection-end-line="54" selection-end-column="96" />
+          <folding>
+            <element signature="e#25#38#0" expanded="true" />
           </folding>
         </state>
       </provider>
