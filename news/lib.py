@@ -6,3 +6,7 @@ def to_number_of_month(month_str):
                  ('september', '09'), ('oktober', '10'), ('november', '11'), ('december', '12')]
     month = [x[1] for x in month_lst if x[0] == month_str]
     return ''.join(month)
+
+def remove_tabs(content):
+    content = content.replace('\t','').replace('\r','').strip()
+    return content

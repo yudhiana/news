@@ -47,19 +47,19 @@ class DetikSpider(scrapy.Spider):
 
     def content_parse(self, response):
         if response.css('#detikdetailtext'):
-            raws = response.css('#detikdetailtext ::text').getall()
+            raws = ''.join(response.css('#detikdetailtext::text').getall()).replace('\t', '').replace('\r', '').strip()
         else:
-            raws = response.css('.detail_text ::text').getall()
-        return ' '.join(raws).strip()
+            raws = ''.join(response.css('.detail_text::text').getall()).replace('\t','').replace('\r','').strip()
+        return raws
 
     def parse_detail(self, response):
         item = NewsItem()
         headers = response.css('article > div.jdl')
         date_str = headers.css('.date::text').get()
-        item['author'] = headers.css('.author::text').get().encode('utf-8')
-        item['date_post_id'] = headers.css('.date::text').get().encode('utf-8')
+        item['author'] = headers.css('.author::text').get()
+        item['date_post_id'] = headers.css('.date::text').get()
         item['date_post'] = self.date_parse(date_str)
         item['content'] = self.content_parse(response)
-        item['link'] = response.url.encode('utf-8')
-        item['title'] = headers.css('h1::text').get().encode('utf-8')
+        item['link'] = response.url
+        item['title'] = headers.css('h1::text').get()
         yield item
