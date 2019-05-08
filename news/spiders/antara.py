@@ -31,7 +31,6 @@ class AntaraSpider(scrapy.Spider):
                                           month,
                                           date_lst[3],
                                           date_lst[4])
-        print date_str
         return datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
 
     def parse_detail(self, response):
