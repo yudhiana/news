@@ -7,6 +7,23 @@ def to_number_of_month(month_str):
     month = [x[1] for x in month_lst if x[0] == month_str]
     return ''.join(month)
 
+
 def remove_tabs(content):
-    content = content.replace('\t','').replace('\r','').strip()
+    content = content.replace('\t', '').replace('\r', '').strip()
     return content
+
+
+def utc_to_id_month(month):
+    month_name = None
+    month = str(month).lower()
+    UTC = [('january', 'januari'), ('february', 'februari'), ('march', 'maret'), ('april', 'april'),
+           ('may', 'mei'), ('june', 'juni'), ('july', 'juli'), ('august', 'agustus'), ('september', 'september'),
+           ('october', 'oktober'), ('november', 'november'), ('december', 'desember')]
+
+    for mth in UTC:
+        if mth[0] != month:
+            month_name = month
+        else:
+            month_name = mth[1]
+            break
+    return month_name
