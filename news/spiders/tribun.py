@@ -6,6 +6,7 @@ from datetime import datetime
 from news.items import NewsItem
 from news.lib import to_number_of_month, remove_tabs
 
+
 class TribunSpider(scrapy.Spider):
     name = 'tribun'
     allowed_domains = ['tribunnews.com']
@@ -21,7 +22,7 @@ class TribunSpider(scrapy.Spider):
             paging = response.css('.paging a::attr(href)')
             if paging:
                 number_pg = paging[-1].get()
-                number_pg = re.sub('.*&page=([0-9]+).*','\g<1>', number_pg)
+                number_pg = re.sub('.*&page=([0-9]+).*', '\g<1>', number_pg)
                 for page in range(2, int(number_pg)):
                     next_page = '{}&page={}'.format(self.start_urls[-1], page)
                     yield scrapy.Request(next_page, callback=self.parse)
@@ -37,12 +38,15 @@ class TribunSpider(scrapy.Spider):
         return date
 
     def parse_detail(self, response):
-        item = NewsItem()
-        date_string = response.css('.content time::text').get()
-        item['title'] = response.css('.content h1::text').get()
-        item['link'] = response.url
-        item['author'] = 'TribunNews'
-        item['date_post'] =  self.date_parse(date_string)
-        item['date_post_id'] = date_string
-        item['content'] = remove_tabs('\n'.join(response.css('.side-article.txt-article p::text').getall()))
-        yield item
+        if re.search(
+                '.*news\.com\/nasional.*|.*news\.com\/regional.*|.*news\.com\/internasional.*|.*news\.com\/bisnis.*',
+                response.url):
+            item = NewsItem()
+            date_string = response.css('.content time::text').get()
+            item['title'] = response.css('.content h1::text').get()
+            item['link'] = response.url
+            item['author'] = 'TribunNews'
+            item['date_post'] = self.date_parse(date_string)
+            item['date_post_id'] = date_string
+            item['content'] = remove_tabs('\n'.join(response.css('.side-article.txt-article p::text').getall()))
+            yield item

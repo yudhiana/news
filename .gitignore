@@ -1,0 +1,9 @@
+# compiled source #
+*.pyc
+
+# IDE #
+*.idea
+
+# Environtment #
+*venv
+*env
