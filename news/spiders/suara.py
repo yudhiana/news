@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
+import re
 from datetime import datetime
 from news.lib import remove_tabs, to_number_of_month
 from news.items import NewsItem
@@ -45,16 +46,18 @@ class SuaraSpider(scrapy.Spider):
         return date
 
     def parse_detail(self, response):
-        title = response.css('.title h1::text').get()
-        author = response.css('.dateDetail .fl author::text').get()
-        date_string = response.css('.dateDetail .fr time::text').get()
-        link = response.url
-        content = self.clean_content(response)
-        item = NewsItem()
-        item['author'] = author
-        item['link'] = link
-        item['title'] = title
-        item['date_post'] = self.date_parse(date_string)
-        item['date_post_id'] = date_string
-        item['content'] = content
-        return item
+        if re.search('.*suara\.com\/news\/.*|.*suara\.com\/bisnis\/.*|.*suara\.com\/dpr\/.*|.*suara\.com\/read\/.*',
+                     response.url):
+            title = response.css('.title h1::text').get()
+            author = response.css('.dateDetail .fl author::text').get()
+            date_string = response.css('.dateDetail .fr time::text').get()
+            link = response.url
+            content = self.clean_content(response)
+            item = NewsItem()
+            item['author'] = author
+            item['link'] = link
+            item['title'] = title
+            item['date_post'] = self.date_parse(date_string)
+            item['date_post_id'] = date_string
+            item['content'] = content
+            return item
