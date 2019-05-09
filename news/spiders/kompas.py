@@ -23,7 +23,7 @@ class KompasSpider(scrapy.Spider):
     def parse_detail(self, response):
         item = NewsItem()
         date = response.css('.read__header .read__time::text').get().replace('Kompas.com - ', '').replace(',', '')
-        content = '\n'.join(response.css('.read__content p::text').getall())
+        content = '\n\n'.join(response.css('.read__content p::text').getall())
         content = remove_tabs(content)
         item['author'] = response.css('.read__header .read__author a::text').get()
         item['date_post'] = datetime.strptime(' '.join(date.split(' ')[0:2]), '%d/%m/%Y %H:%M')

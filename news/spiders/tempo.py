@@ -39,5 +39,5 @@ class TempoSpider(scrapy.Spider):
             item['author'] = ' - '.join(author_lst).title()
             item['date_post'] = self.date_parse(date_string)
             item['date_post_id'] = date_string
-            item['content'] = remove_tabs('\n'.join(response.css('#isi p::text').getall()))
+            item['content'] = remove_tabs('\n\n'.join(response.css('#isi p::text').getall()))
             yield item

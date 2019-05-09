@@ -44,5 +44,5 @@ class OkezoneSpider(scrapy.Spider):
         item['author'] = response.css('.namerep ::text').get().replace('\n', '').strip()
         item['date_post'] = self.date_parse(date_string)
         item['date_post_id'] = date_string
-        item['content'] = remove_tabs('\n'.join(response.css('#contentx p::text').getall()))
+        item['content'] = remove_tabs('\n\n'.join(response.css('#contentx p::text').getall()))
         yield item

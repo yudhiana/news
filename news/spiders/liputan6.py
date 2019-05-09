@@ -36,7 +36,7 @@ class Liputan6Spider(scrapy.Spider):
     def parse_detail(self, response):
         item = NewsItem()
         content_lst = response.css('.article-content-body__item-content p::text').getall()
-        content = remove_tabs('\n'.join(content_lst).replace('Baca Juga',''))
+        content = remove_tabs('\n\n'.join(content_lst).replace('Baca Juga',''))
         date_string = response.css('time.read-page--header--author__datetime.updated::text').get()
         item['title'] = response.css('h1.read-page--header--title.entry-title::text').get()
         item['link'] = response.url
