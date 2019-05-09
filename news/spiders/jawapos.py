@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import scrapy
 from datetime import datetime
 from news.lib import remove_tabs, to_number_of_month

@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-
 import scrapy
 import re
-from bs4 import BeautifulSoup
 from news.items import NewsItem
 from news.lib import remove_tabs, to_number_of_month
 from datetime import datetime
