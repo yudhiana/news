@@ -6,7 +6,7 @@
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 import pycurl
-from StringIO import StringIO
+from io import StringIO
 from scrapy import signals
 from scrapy.http import HtmlResponse
 

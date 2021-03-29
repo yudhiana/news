@@ -8,3 +8,4 @@
 # Environtment #
 *venv
 *env
+*.json

@@ -2,7 +2,7 @@
 
 ## install scrapy
 
-1. ``pip install scrapy``
+1. ``pip install scrapy`` OR pip install -r requirements.txt
 
 if yo don't have pip install pip below:
  - wget https://bootstrap.pypa.io/get-pip.py
@@ -14,4 +14,4 @@ sudo apt install python-pip3
 
 to see list of spider run like this: ``scrapy list``
 
-to run spider : `` scrapy crawl detik -o detik.json``
+to run spider : `` scrapy crawl antara -o antara.json``
