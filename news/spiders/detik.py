@@ -24,7 +24,6 @@ class DetikSpider(scrapy.Spider):
 
         urls = response.css('.media__title a::attr(href)').getall()
         for href in urls:
-            # print(href)
             yield scrapy.Request(href, callback=self.parse_detail)
 
     def date_parse(self, date_string):
@@ -34,7 +33,6 @@ class DetikSpider(scrapy.Spider):
             date_str = '{}/{}/{} {}:00'.format(date_lst[0],
                                             to_number_of_month(date_lst[1].lower()),
                                             date_lst[2].replace(',', ''), date_lst[3])
-            print(date_str)
             date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
         else:
             date_lst = date_lst[:-1]
