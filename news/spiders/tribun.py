@@ -3,7 +3,8 @@ import scrapy
 import re
 from datetime import datetime
 from news.items import NewsItem
-from news.lib import to_number_of_month, remove_tabs
+from news.lib import date_parse
+from json import loads
 
 
 class TribunSpider(scrapy.Spider):
@@ -11,41 +12,40 @@ class TribunSpider(scrapy.Spider):
     allowed_domains = ['tribunnews.com']
     date = datetime.now().strftime('%Y-%m-%d')
     start_urls = [
-        'http://www.tribunnews.com/index-news?date={}'.format(date)
+        'https://www.tribunnews.com/indeks/news'
     ]
 
     def parse(self, response):
-        for href in response.xpath('/html/body/div[4]/div[4]/div[1]/div/div[2]/div[2]/ul/li/h3/a/@href'):
-            yield scrapy.Request(url=href.get(), callback=self.parse_detail)
-        if not re.search('.*&page=.*', response.url):
-            paging = response.css('.paging a::attr(href)')
-            if paging:
-                number_pg = paging[-1].get()
-                number_pg = re.sub('.*&page=([0-9]+).*', '\g<1>', number_pg)
-                for page in range(2, int(number_pg)):
-                    next_page = '{}&page={}'.format(self.start_urls[-1], page)
-                    yield scrapy.Request(next_page, callback=self.parse)
+        lastpage = response.css(".paging a::attr(href)").getall()[-1].split('page=')
+        pages = int(lastpage[1])
+        for page in range(2, pages+1):
+            next_page = lastpage[0]+ "page=" + str(page)
+            yield scrapy.Request(next_page, callback=self.parse)
+        
+        urls = response.css('h3 a::attr(href)').getall()
+        for url in urls:
+            yield scrapy.Request(url+"?page=all", callback=self.parse_detail)
 
-    def date_parse(self, date_string):
-        date_lst = str(date_string).strip().split(' ')
-        month = to_number_of_month(date_lst[2].lower())
-        date_str = '{}/{}/{} {}:00'.format(date_lst[1],
-                                           month,
-                                           date_lst[3],
-                                           date_lst[4])
-        date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
-        return date
+    def parse_author(self, response):
+        author = ''
+        scripts = response.css("script")
+        for script in scripts:
+            script_type = script.css('::attr(type)').get()
+            if script_type is not None:
+                if 'application/ld+json' in script_type:
+                    data = loads(script.css("::text").get().replace("\n","").replace("\t","").strip())
+                    if 'author' in data:
+                        author = data['author']['name']
+        return author
 
     def parse_detail(self, response):
-        if re.search(
-                '.*news\.com\/nasional.*|.*news\.com\/regional.*|.*news\.com\/internasional.*|.*news\.com\/bisnis.*',
-                response.url):
-            item = NewsItem()
-            date_string = response.css('.content time::text').get()
-            item['title'] = response.css('.content h1::text').get()
-            item['link'] = response.url
-            item['author'] = 'TribunNews'
-            item['date_post'] = self.date_parse(date_string)
-            item['date_post_id'] = date_string
-            item['content'] = remove_tabs('\n\n'.join(response.css('.side-article.txt-article p::text').getall()))
-            yield item
+        content = response.css('.content')
+        date_str = content.css('#article time ::text').get().strip()
+        item = NewsItem()
+        item['date_post'] = date_parse(date_str)
+        item['date_post_id'] = date_str
+        item['author'] = self.parse_author(response)
+        item['title'] = content.css('h1::text').get().strip()
+        item['link'] = response.url
+        item['content'] = '\n'.join(response.css('.side-article.txt-article p::text').getall())
+        yield item
