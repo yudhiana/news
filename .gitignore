@@ -7,7 +7,7 @@ news/*.pyc
 news/spiders/__pycache__
 news/spiders/.*pyc
 # IDE #
-*.idea/*
+*.idea
 
 # Environtment #
 *venv
