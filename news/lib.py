@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 
 def to_number_of_month(month_str):
     nick_month = {'jan':'januari','feb':'februari','mar':'maret','april':'april','mei':'mei','jun':'juni','agustus':'agustus','sep':'september','okt':'oktober','nov':'november','des':'desember'}
@@ -32,3 +33,17 @@ def utc_to_id_month(month):
             month_name = mth[1]
             break
     return month_name
+
+def date_parse(date_string):
+        date_lst = date_string.split(' ')
+        if len(date_lst) != 3:
+            date_lst = date_lst[1:-1]
+            date_str = '{}/{}/{} {}:00'.format(date_lst[0],
+                                            to_number_of_month(date_lst[1].lower()),
+                                            date_lst[2].replace(',', ''), date_lst[3])
+            date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
+        else:
+            date_lst = date_lst[:-1]
+            date_str = ' '.join(date_lst)
+            date = datetime.strptime(date_str, '%Y/%m/%d %H:%M:%S')
+        return date
