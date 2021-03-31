@@ -44,7 +44,6 @@ class DetikSpider(scrapy.Spider):
         result = ''
         try:
             result = response.css('.detail__body-text  ::text').getall()
-
         except:
             pass
         return "".join(result)
