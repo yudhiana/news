@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
 def to_number_of_month(month_str):
+    nick_month = {'jan':'januari','feb':'februari','mar':'maret','april':'april','mei':'mei','jun':'juni','agustus':'agustus','sep':'september','okt':'oktober','nov':'november','des':'desember'}
+    try:
+        month_str = nick_month[month_str]
+    except:
+        pass
     month_lst = [('januari', '01'), ('februari', '02'), ('maret', '03'), ('april', '04'),
                  ('mei', '05'), ('juni', '06'), ('juli', '07'), ('agustus', '08'),
                  ('september', '09'), ('oktober', '10'), ('november', '11'), ('december', '12')]

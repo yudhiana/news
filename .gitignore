@@ -2,6 +2,10 @@
 *.pyc
 *.xml
 
+news/__pycache__
+news/*.pyc
+news/spiders/__pycache__
+news/spiders/.*pyc
 # IDE #
 *.idea/*
 
