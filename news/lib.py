@@ -2,7 +2,7 @@
 from datetime import datetime
 
 def to_number_of_month(month_str):
-    nick_month = {'jan':'januari','feb':'februari','mar':'maret','april':'april','mei':'mei','jun':'juni','agustus':'agustus','sep':'september','okt':'oktober','nov':'november','des':'desember'}
+    nick_month = {'jan':'januari','feb':'februari','mar':'maret','apr':'april','mei':'mei','jun':'juni','agu':'agustus','ags':'agustus','agu/ags':'agustus','sep':'september','okt':'oktober','nov':'november','des':'desember'}
     try:
         month_str = nick_month[month_str]
     except:
