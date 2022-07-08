@@ -53,10 +53,10 @@ class RepublikaSpider(scrapy.Spider):
         author =  self.clean_author(author)
         link = response.url
         item = NewsItem()
-        item['author'] = author
-        item['link'] = link
-        item['title'] = title
         item['date_post'] = self.date_parse(date_string)
         item['date_post_id'] = date_string
+        item['author'] = author
+        item['title'] = title
+        item['link'] = link
         item['content'] = self.clean_content(response)
         return item

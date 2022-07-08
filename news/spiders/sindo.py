@@ -26,7 +26,7 @@ class SindoSpider(scrapy.Spider):
         if re.search('.*index\/0\?t=*', response.url):
             pages = response.css('.pagination li a::attr(data-ci-pagination-page)').getall()[-1]
             pg = 0
-            for page in xrange(int(str(pages))):
+            for page in range(int(str(pages))):
                 pg += 15
                 result.append('https://index.sindonews.com/index/0/{}?t={}'.format(pg, self.date))
         return result
@@ -44,12 +44,12 @@ class SindoSpider(scrapy.Spider):
 
     def parse_detail(self, response):
         item = NewsItem()
-        date_string = response.css('div.article time::text').get()
-        item['title'] = response.css('.article h1::text').get()
-        item['link'] = response.url
-        item['author'] =  response.css('.article .reporter p a::text').get()
+        date_string = response.css('.detail-date-artikel::text').get()
         item['date_post'] = self.date_parse(date_string)
         item['date_post_id'] = date_string
+        item['author'] =  response.css('.article .reporter p a::text').get()
+        item['title'] = response.css('.article h1::text').get()
+        item['link'] = response.url
         item['content'] = remove_tabs('\n'.join(response.css('.article #content::text').getall()))
         return item
 

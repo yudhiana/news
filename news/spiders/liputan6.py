@@ -38,10 +38,10 @@ class Liputan6Spider(scrapy.Spider):
         content_lst = response.css('.article-content-body__item-content p::text').getall()
         content = remove_tabs('\n\n'.join(content_lst).replace('Baca Juga',''))
         date_string = response.css('time.read-page--header--author__datetime.updated::text').get()
-        item['title'] = response.css('h1.read-page--header--title.entry-title::text').get()
-        item['link'] = response.url
-        item['author'] = response.css('span.read-page--header--author__name::text').get()
         item['date_post'] = self.date_parse(date_string)
         item['date_post_id'] = date_string
+        item['author'] = response.css('span.read-page--header--author__name::text').get()
+        item['title'] = response.css('h1.read-page--header--title.entry-title::text').get()
+        item['link'] = response.url
         item['content'] = content
         return item

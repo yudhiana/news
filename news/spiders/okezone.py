@@ -39,10 +39,10 @@ class OkezoneSpider(scrapy.Spider):
     def parse_detail(self, response):
         item = NewsItem()
         date_string = response.css('.namerep b::text').get()
-        item['title'] = str(response.css('.title h1::text').get()).strip()
-        item['link'] = response.url
-        item['author'] = response.css('.namerep ::text').get().replace('\n', '').strip()
         item['date_post'] = self.date_parse(date_string)
         item['date_post_id'] = date_string
+        item['author'] = response.css('.namerep ::text').get().replace('\n', '').strip()
+        item['title'] = str(response.css('.title h1::text').get()).strip()
+        item['link'] = response.url
         item['content'] = remove_tabs('\n\n'.join(response.css('#contentx p::text').getall()))
         yield item

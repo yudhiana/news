@@ -48,10 +48,10 @@ class JawaposSpider(scrapy.Spider):
         date_string = response.css('.time::text').get().strip()
         author_lst = str(response.css('.content-reporter p::text').get()).split(':')
         author = author_lst[-1].strip()
-        item['link'] = response.url
         item['date_post'] = self.date_parse(date_string)
-        item['title'] = response.css('h1.single-title::text').get().strip()
         item['date_post_id'] = date_string
         item['author'] = author
+        item['title'] = response.css('h1.single-title::text').get().strip()
+        item['link'] = response.url
         item['content'] = self.clean_content(response)
         return item
