@@ -5,7 +5,6 @@
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
-import pycurl
 import requests
 from io import StringIO
 from scrapy import signals
@@ -82,18 +81,12 @@ class NewsDownloaderMiddleware(object):
         # - or return a Request object
         # - or raise IgnoreRequest: process_exception() methods of
         #   installed downloader middleware will be called
-        if spider.name == 'tribun':
-            # buffer = StringIO()
-            # c = pycurl.Curl()
-            # c.setopt(c.URL, request.url)
-            # c.setopt(c.WRITEDATA, buffer)
-            # c.perform()
-            # c.close()
-            # body = buffer.getvalue()
-            body = requests.get(request.url).text
-            return HtmlResponse(request.url, body=body, encoding='utf-8', request=request)
-        else:
-            return None
+        # if spider.name == 'tempo':
+        #     body = requests.get(request.url).text
+        #     return HtmlResponse(request.url, body=body, encoding='utf-8', request=request)
+        # else:
+        #     return None
+        return None
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
