@@ -34,10 +34,10 @@ class TempoSpider(scrapy.Spider):
             author_lst = [x.replace('editor:', '').replace('reporter:', '').replace(' ', '') for x in author_lst]
             author_lst = [x for x in author_lst if len(x) != 0]
             date_string = response.css('span#date::text').get()
-            item['link'] = response.url
-            item['title'] = response.css('#article h1 ::text').get().replace('\t', '').replace('\r', '').strip()
-            item['author'] = ' - '.join(author_lst).title()
             item['date_post'] = self.date_parse(date_string)
             item['date_post_id'] = date_string
+            item['author'] = ' - '.join(author_lst).title()
+            item['title'] = response.css('#article h1 ::text').get().replace('\t', '').replace('\r', '').strip()
+            item['link'] = response.url
             item['content'] = remove_tabs('\n\n'.join(response.css('#isi p::text').getall()))
             yield item

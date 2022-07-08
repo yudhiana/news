@@ -2,7 +2,7 @@
 from datetime import datetime
 
 def to_number_of_month(month_str):
-    nick_month = {'jan':'januari','feb':'februari','mar':'maret','apr':'april','mei':'mei','jun':'juni','agu':'agustus','ags':'agustus','agu/ags':'agustus','sep':'september','okt':'oktober','nov':'november','des':'desember'}
+    nick_month = {'jan':'januari','feb':'februari','mar':'maret','apr':'april','mei':'mei','jun':'juni','jul':'juli','agu':'agustus','ags':'agustus','agu/ags':'agustus','sep':'september','okt':'oktober','nov':'november','des':'desember'}
     try:
         month_str = nick_month[month_str]
     except:
@@ -43,7 +43,11 @@ def date_parse(date_string):
                                             date_lst[2].replace(',', ''), date_lst[3])
             date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
         else:
-            date_lst = date_lst[:-1]
-            date_str = ' '.join(date_lst)
-            date = datetime.strptime(date_str, '%Y/%m/%d %H:%M:%S')
+            try:
+                date_lst = date_lst[:-1]
+                date_str = ' '.join(date_lst)
+                date = datetime.strptime(date_str, '%Y/%m/%d %H:%M:%S')
+            except:
+                date_str = ' '.join(date_lst)
+                date = datetime.strptime(date_str+":00", '%d/%m/%Y %H:%M:%S')
         return date
