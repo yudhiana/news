@@ -24,7 +24,7 @@ class SuaraSpider(scrapy.Spider):
         if len(links_detail) != 0:
             for href in links_detail:
                 url = href.css('::attr(href)').get()
-                yield scrapy.Request(url, callback=self.parse_detail)
+                yield scrapy.Request(url+'?page=all', callback=self.parse_detail)
 
             next_page = response.css('.pagination li.active +li')
             if next_page:
@@ -49,16 +49,44 @@ class SuaraSpider(scrapy.Spider):
     def parse_detail(self, response):
         if re.search('.*suara\.com\/news\/.*|.*suara\.com\/bisnis\/.*|.*suara\.com\/dpr\/.*|.*suara\.com\/read\/.*',
                      response.url):
-            title = response.css('.title h1::text').get()
-            author = response.css('.dateDetail .fl author::text').get()
-            date_string = response.css('.dateDetail .fr time::text').get()
-            link = response.url
-            content = self.clean_content(response)
             item = NewsItem()
-            item['date_post'] = self.date_parse(date_string)
-            item['date_post_id'] = date_string
-            item['author'] = author
-            item['title'] = title
-            item['link'] = link
-            item['content'] = content
+            item['date_post'] = self.date_parse(self.get_date(response))
+            item['date_post_id'] = self.get_date(response)
+            item['author'] = self.get_author(response)
+            item['title'] = self.get_title(response)
+            item['link'] = response.url
+            item['content'] = self.get_content(response)
             return item
+
+    def get_date(self, response):
+        date_string = response.css('.dateDetail .fr time::text').get()
+        if date_string:
+            return date_string
+        else:
+            date_obj = response.css('.detail--info span::text').getall()
+            if date_obj:
+                obj = date_obj[-1]
+                if obj:
+                    return obj.strip()
+        return None
+
+    def get_author(self, response):
+        author = response.css('.dateDetail .fl author::text').get()
+        if not author:
+            author = response.css('.detail--info span::text').get()
+        return author
+
+    def get_content(self, response):
+        content = self.clean_content(response)
+        if not content:
+            content_lst = response.css('.detail--content p::text').getall()
+            if content_lst:
+                content = '\n\n'.join(content_lst)
+                content = remove_tabs(content)
+        return content
+
+    def get_title(self, response):
+        title = response.css('.title h1::text').get()
+        if not title:
+            title = response.css('.detail h1::text').get()
+        return title
