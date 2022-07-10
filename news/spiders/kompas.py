@@ -30,9 +30,15 @@ class KompasSpider(scrapy.Spider):
         item['date_post'] = datetime.strptime(
             ' '.join(date.split(' ')[0:2]), '%d/%m/%Y %H:%M')
         item['date_post_id'] = date
-        item['author'] = response.css(
-            '.read__header .read__author a::text').get()
+        item['author'] = self.get_author(response)
         item['title'] = response.css('h1.read__title::text').get()
         item['link'] = response.url
         item['content'] = content
         yield item
+
+    def get_author(self, response):
+        author = response.css(
+            '.read__header .read__author a::text').get()
+        if author is None:
+            author = response.css('.read__credit__item a ::text').get()
+        return author
