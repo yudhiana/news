@@ -51,3 +51,7 @@ def date_parse(date_string):
                 date_str = ' '.join(date_lst)
                 date = datetime.strptime(date_str+":00", '%d/%m/%Y %H:%M:%S')
         return date
+
+def remove_baca_juga(content):
+    content = content.replace('Baca Juga', '')
+    return content
