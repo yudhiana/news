@@ -34,7 +34,7 @@ class MerdekaSpider(scrapy.Spider):
         return date
 
     def clean_content(self, response):
-        content_lst = response.css('.mdk-body-paragpraph p ::text').getall()
+        content_lst = response.css('.mdk-body-paragraph p ::text').getall()
         content = '\n\n'.join(content_lst)
         return remove_tabs(content)
 
