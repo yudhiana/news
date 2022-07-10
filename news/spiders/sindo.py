@@ -2,7 +2,7 @@
 import scrapy
 import re
 from news.items import NewsItem
-from news.lib import remove_tabs, to_number_of_month
+from news.lib import remove_tabs, to_number_of_month, remove_baca_juga
 from datetime import datetime
 
 
@@ -19,7 +19,7 @@ class SindoSpider(scrapy.Spider):
                 yield scrapy.Request(url=page, callback=self.parse)
 
         for href in response.css('.indeks-news .indeks-title a::attr(href)'):
-            yield scrapy.Request(url=href.get(), callback=self.parse_detail)
+            yield scrapy.Request(url=href.get()+'?showpage=all', callback=self.parse_detail)
 
     def pages(self, response):
         result = []
@@ -48,9 +48,31 @@ class SindoSpider(scrapy.Spider):
         date_string = response.css('.detail-date-artikel::text').get()
         item['date_post'] = self.date_parse(date_string)
         item['date_post_id'] = date_string
-        item['author'] = response.css('.article .reporter p a::text').get()
-        item['title'] = response.css('.article h1::text').get()
+        item['author'] = self.get_author(response)
+        item['title'] = self.get_title(response)
         item['link'] = response.url
-        item['content'] = remove_tabs(
-            '\n'.join(response.css('.article #content::text').getall()))
+        item['content'] = self.get_content(response)
         return item
+
+    def get_author(self, response):
+        author = response.css('.article .reporter p a::text').get()
+        if not author:
+            author = response.css('.detail-nama-redaksi a::text').get()
+        return author
+
+    def get_title(self, response):
+        title = response.css('.article h1::text').get()
+        if not title:
+            title = response.css('.detail-title h1::text').get()
+        return title
+
+    def get_content(self, response):
+        content = remove_tabs(
+            '\n'.join(response.css('.article #content::text').getall()))
+        if not content:
+            print("========= empty =============")
+            content = response.css('.detail-desc ::text').getall()
+            content = '\n'.join(content)
+            if content:
+                content = remove_baca_juga(content)
+        return content
