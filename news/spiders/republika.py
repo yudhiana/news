@@ -19,10 +19,9 @@ class RepublikaSpider(scrapy.Spider):
                 url_page = href.css('a::attr(href)').get()
                 yield scrapy.Request(url_page, callback=self.parse_detail)
 
-            next_page = response.css('nav a::attr(href)').getall()[-1]
-
-            if next_page is not None:
-                yield scrapy.Request(next_page, callback=self.parse)
+            next_page = response.css('nav a::attr(href)').getall()
+            if next_page:
+                yield scrapy.Request(next_page[-1], callback=self.parse)
 
     def clean_author(self, author_str):
         author_lst = str(author_str).strip().replace(
@@ -47,7 +46,11 @@ class RepublikaSpider(scrapy.Spider):
 
     def clean_content(self, response):
         content_lst = response.css('.artikel  p ::text').getall()
-        content = remove_tabs('\n'.join(content_lst))
+        if content_lst:
+            content = remove_tabs('\n'.join(content_lst))
+        else:
+            content_lst = response.css('[itemprop="articleBody"] p::text').getall()
+            content = remove_tabs('\n'.join(content_lst))
         return content
 
     def parse_detail(self, response):
