@@ -18,8 +18,8 @@ class DetikSpider(scrapy.Spider):
     def parse(self, response):
         pages = response.css('.pagination a::attr(href)').getall()
         lastpages = int(pages[-2].split("/")[-1])
-        for page in range(2,lastpages+1):
-           yield scrapy.Request(self.start_urls[0]+ "/" + str(page), callback=self.parse)
+        for page in range(2, lastpages+1):
+            yield scrapy.Request(self.start_urls[0] + "/" + str(page), callback=self.parse)
 
         urls = response.css('.media__title a::attr(href)').getall()
         for href in urls:
@@ -43,6 +43,4 @@ class DetikSpider(scrapy.Spider):
         item['title'] = headers.css('h1::text').get().strip()
         item['link'] = response.url
         item['content'] = self.content_parse(response)
-        
-        
         yield item

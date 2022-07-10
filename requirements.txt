@@ -1,5 +1,6 @@
 attrs==20.3.0
 Automat==20.2.0
+autopep8==1.6.0
 certifi==2020.12.5
 cffi==1.14.5
 chardet==4.0.0
@@ -20,6 +21,7 @@ parsel==1.6.0
 Protego==0.1.16
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
+pycodestyle==2.8.0
 pycparser==2.20
 PyDispatcher==2.0.5
 pyOpenSSL==20.0.1
@@ -32,6 +34,7 @@ scrapy-fake-useragent==1.4.4
 service-identity==18.1.0
 six==1.15.0
 tldextract==3.3.0
+toml==0.10.2
 Twisted==22.4.0
 typing-extensions==4.3.0
 urllib3==1.26.5

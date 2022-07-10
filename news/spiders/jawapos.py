@@ -21,7 +21,8 @@ class JawaposSpider(scrapy.Spider):
 
     def start_requests(self):
         for id in self.category:
-            url = '{}?date={}&category={}'.format(self.base_link, self.date, id[0])
+            url = '{}?date={}&category={}'.format(
+                self.base_link, self.date, id[0])
             yield scrapy.Request(url, callback=self.parse)
 
     def parse(self, response):
@@ -46,7 +47,8 @@ class JawaposSpider(scrapy.Spider):
     def parse_detail(self, response):
         item = NewsItem()
         date_string = response.css('.time::text').get().strip()
-        author_lst = str(response.css('.content-reporter p::text').get()).split(':')
+        author_lst = str(response.css(
+            '.content-reporter p::text').get()).split(':')
         author = author_lst[-1].strip()
         item['date_post'] = self.date_parse(date_string)
         item['date_post_id'] = date_string

@@ -11,7 +11,8 @@ class SuaraSpider(scrapy.Spider):
     allowed_domains = ['suara.com']
     year = datetime.now().year
     base_link = 'https://www.suara.com/indeks/terkini/'
-    categories = ['news', 'bisnis', 'banten', 'jabar', 'jateng', 'jatim', 'jogja']
+    categories = ['news', 'bisnis', 'banten',
+                  'jabar', 'jateng', 'jatim', 'jogja']
 
     def start_requests(self):
         for category in self.categories:

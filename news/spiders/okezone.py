@@ -22,7 +22,8 @@ class OkezoneSpider(scrapy.Spider):
         for href in response.css('ul.list-berita li h4 a::attr(href)'):
             yield scrapy.Request(url=href.get(), callback=self.parse_detail)
 
-        next_page = response.css('.pagination-indexs a::attr(href)').getall()[-1]
+        next_page = response.css(
+            '.pagination-indexs a::attr(href)').getall()[-1]
         if next_page is not None:
             yield scrapy.Request(next_page, callback=self.parse)
 
@@ -41,8 +42,10 @@ class OkezoneSpider(scrapy.Spider):
         date_string = response.css('.namerep b::text').get()
         item['date_post'] = self.date_parse(date_string)
         item['date_post_id'] = date_string
-        item['author'] = response.css('.namerep ::text').get().replace('\n', '').strip()
+        item['author'] = response.css(
+            '.namerep ::text').get().replace('\n', '').strip()
         item['title'] = str(response.css('.title h1::text').get()).strip()
         item['link'] = response.url
-        item['content'] = remove_tabs('\n\n'.join(response.css('#contentx p::text').getall()))
+        item['content'] = remove_tabs('\n\n'.join(
+            response.css('#contentx p::text').getall()))
         yield item

@@ -16,12 +16,13 @@ class TribunSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        lastpage = response.css(".paging a::attr(href)").getall()[-1].split('page=')
+        lastpage = response.css(
+            ".paging a::attr(href)").getall()[-1].split('page=')
         pages = int(lastpage[1])
         for page in range(2, pages+1):
-            next_page = lastpage[0]+ "page=" + str(page)
+            next_page = lastpage[0] + "page=" + str(page)
             yield scrapy.Request(next_page, callback=self.parse)
-        
+
         urls = response.css('h3 a::attr(href)').getall()
         for url in urls:
             yield scrapy.Request(url+"?page=all", callback=self.parse_detail)
@@ -33,7 +34,8 @@ class TribunSpider(scrapy.Spider):
             script_type = script.css('::attr(type)').get()
             if script_type is not None:
                 if 'application/ld+json' in script_type:
-                    data = loads(script.css("::text").get().replace("\n","").replace("\t","").strip())
+                    data = loads(script.css("::text").get().replace(
+                        "\n", "").replace("\t", "").strip())
                     if 'author' in data:
                         author = data['author']['name']
         return author
@@ -47,5 +49,6 @@ class TribunSpider(scrapy.Spider):
         item['author'] = self.parse_author(response)
         item['title'] = content.css('h1::text').get().strip()
         item['link'] = response.url
-        item['content'] = '\n'.join(response.css('.side-article.txt-article p::text').getall())
+        item['content'] = '\n'.join(response.css(
+            '.side-article.txt-article p::text').getall())
         yield item
