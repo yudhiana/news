@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import re
-from news.lib import to_number_of_month, remove_tabs
+from news.lib import to_number_of_month, remove_tabs, date_parse
 from datetime import datetime
 from news.items import NewsItem
 
@@ -23,15 +23,6 @@ class AntaraSpider(scrapy.Spider):
                 for page in pages:
                     yield scrapy.Request(url=page, callback=self.parse)
 
-    def date_parse(self, date_string):
-        date_lst = date_string.split(' ')
-        month = to_number_of_month(date_lst[2].lower())
-        date_str = '{}/{}/{} {}:00'.format(date_lst[1],
-                                           month,
-                                           date_lst[3],
-                                           date_lst[4])
-        return datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
-
     def clean_author(self, author_list):
         author_lst = [re.sub('[\r\t\n]', '', x).lower() for x in author_list]
         author_lst = [x.lower().replace('editor:', '').
@@ -45,19 +36,41 @@ class AntaraSpider(scrapy.Spider):
     def parse_detail(self, response):
         if re.search('.*www\.antaranews\.com\/berita*', response.url):
             item = NewsItem()
-            author_lst = response.css(
-                'p.text-muted.small.mt10::text').getall()[:-1]
-            title = response.css('h1.post-title::text').get()
-            link = response.url
-            date_string = response.css(
-                'span.article-date ::text').get().strip()
-            author = self.clean_author(author_lst)
-            content_lst = response.css('.post-content.clearfix::text').getall()
-            content = remove_tabs(''.join(content_lst))
-            item['date_post'] = self.date_parse(date_string)
-            item['date_post_id'] = date_string
-            item['author'] = author.title()
-            item['title'] = title
-            item['link'] = link
-            item['content'] = content
+            item['date_post'] = self.get_date(response)
+            item['date_post_id'] = self.get_date_post_id(response)
+            item['author'] = self.get_author(response)
+            item['title'] = self.get_title(response)
+            item['link'] = response.url
+            item['content'] = self.get_content(response)
             return item
+
+    def get_author(self, response):
+        author_lst = response.css(
+            'p.text-muted.small.mt10::text').getall()
+        if author_lst:
+            author_lst = author_lst[:-1]
+            return self.clean_author(author_lst).title()
+        return None
+
+    def get_title(self, response):
+        return response.css('h1.post-title::text').get()
+
+    def get_content(self, response):
+        content_lst = response.css('.post-content.clearfix::text').getall()
+        if content_lst:
+            return remove_tabs(''.join(content_lst))
+        return None
+
+    def get_date(self, response):
+        date_string = self.get_date_post_id(response)
+        if date_string:
+            date_string = date_string.strip()
+            return date_parse(date_string)
+        return None
+
+    def get_date_post_id(self, response):
+        date_string = response.css(
+            'span.article-date ::text').get()
+        if date_string:
+            return date_string.strip()
+        return None
