@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+import pytz
+
 
 def to_number_of_month(month_str):
-    nick_month = {'jan':'januari','feb':'februari','mar':'maret','apr':'april','mei':'mei','jun':'juni','jul':'juli','agu':'agustus','ags':'agustus','agu/ags':'agustus','sep':'september','okt':'oktober','nov':'november','des':'desember'}
+    nick_month = {'jan': 'januari', 'feb': 'februari', 'mar': 'maret', 'apr': 'april', 'mei': 'mei', 'jun': 'juni', 'jul': 'juli',
+                  'agu': 'agustus', 'ags': 'agustus', 'agu/ags': 'agustus', 'sep': 'september', 'okt': 'oktober', 'nov': 'november', 'des': 'desember'}
     try:
         month_str = nick_month[month_str]
     except:
@@ -23,8 +26,8 @@ def utc_to_id_month(month):
     month_name = None
     month = str(month).lower()
     UTC = [('january', 'januari'), ('february', 'februari'), ('march', 'maret'), ('april', 'april'),
-           ('may', 'mei'), ('june', 'juni'), ('july', 'juli'), ('august', 'agustus'), ('september', 'september'),
-           ('october', 'oktober'), ('november', 'november'), ('december', 'desember')]
+           ('may', 'mei'), ('june', 'juni'), ('july', 'juli'), ('august', 'agustus'),
+           ('september', 'september'), ('october', 'oktober'), ('november', 'november'), ('december', 'desember')]
 
     for mth in UTC:
         if mth[0] != month:
@@ -34,23 +37,29 @@ def utc_to_id_month(month):
             break
     return month_name
 
+
 def date_parse(date_string):
-        date_lst = date_string.split(' ')
-        if len(date_lst) != 3:
-            date_lst = date_lst[1:-1]
-            date_str = '{}/{}/{} {}:00'.format(date_lst[0],
-                                            to_number_of_month(date_lst[1].lower()),
-                                            date_lst[2].replace(',', ''), date_lst[3])
-            date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
-        else:
-            try:
-                date_lst = date_lst[:-1]
-                date_str = ' '.join(date_lst)
-                date = datetime.strptime(date_str, '%Y/%m/%d %H:%M:%S')
-            except:
-                date_str = ' '.join(date_lst)
-                date = datetime.strptime(date_str+":00", '%d/%m/%Y %H:%M:%S')
-        return date
+    local_format = pytz.timezone('Asia/Jakarta')
+    date_lst = date_string.split(' ')
+    if len(date_lst) != 3:
+        date_lst = date_lst[1:-1]
+        date_str = '{}/{}/{} {}:00'.format(date_lst[0],
+                                           to_number_of_month(
+                                               date_lst[1].lower()),
+                                           date_lst[2].replace(',', ''), date_lst[3])
+        date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
+    else:
+        try:
+            date_lst = date_lst[:-1]
+            date_str = ' '.join(date_lst)
+            date = datetime.strptime(date_str, '%Y/%m/%d %H:%M:%S')
+        except:
+            date_str = ' '.join(date_lst)
+            date = datetime.strptime(date_str+":00", '%d/%m/%Y %H:%M:%S')
+    local_time = local_format.localize(date, is_dst=None)
+    utc_time = local_time.astimezone(pytz.utc)
+    return utc_time
+
 
 def remove_baca_juga(content):
     content = content.replace('Baca Juga', '')
