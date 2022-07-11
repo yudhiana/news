@@ -23,16 +23,6 @@ class AntaraSpider(scrapy.Spider):
                 for page in pages:
                     yield scrapy.Request(url=page, callback=self.parse)
 
-    def clean_author(self, author_list):
-        author_lst = [re.sub('[\r\t\n]', '', x).lower() for x in author_list]
-        author_lst = [x.lower().replace('editor:', '').
-                      replace('pewarta:', '').
-                      replace('penerjemah:', '').
-                      strip()
-                      for x in author_lst]
-        author_lst = [x for x in author_lst if len(x) != 0]
-        return ' - '.join(author_lst)
-
     def parse_detail(self, response):
         if re.search('.*www\.antaranews\.com\/berita*', response.url):
             item = NewsItem()
@@ -74,3 +64,13 @@ class AntaraSpider(scrapy.Spider):
         if date_string:
             return date_string.strip()
         return None
+
+    def clean_author(self, author_list):
+        author_lst = [re.sub('[\r\t\n]', '', x).lower() for x in author_list]
+        author_lst = [x.lower().replace('editor:', '').
+                      replace('pewarta:', '').
+                      replace('penerjemah:', '').
+                      strip()
+                      for x in author_lst]
+        author_lst = [x for x in author_lst if len(x) != 0]
+        return ' - '.join(author_lst)
