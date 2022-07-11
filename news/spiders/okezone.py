@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from operator import index
 import scrapy
 from news.items import NewsItem
 from news.lib import remove_tabs, to_number_of_month
@@ -8,22 +9,28 @@ from datetime import datetime
 class OkezoneSpider(scrapy.Spider):
     name = 'okezone'
     allowed_domains = ['okezone.com']
-    start_urls = [
-        'https://index.okezone.com/bydate/channel/2019/05/03/1',
-        'https://index.okezone.com/bydate/channel/2019/05/03/11',
-        'https://index.okezone.com/bydate/channel/2019/05/03/266'
-    ]
+    index_kanals_id = [1, 2, 11, 12, 13, 14, 16, 613,
+                       25, 298, 481, 15, 337, 338, 619, 623, 620]
+    base_url = 'https://index.okezone.com/home/channel/'
 
     def start_requests(self):
-        for url in self.start_urls:
+        for id in self.index_kanals_id:
+            url = self.base_url + str(id)
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
         for href in response.css('ul.list-berita li h4 a::attr(href)'):
             yield scrapy.Request(url=href.get(), callback=self.parse_detail)
 
-        next_page = response.css(
-            '.pagination-indexs a::attr(href)').getall()[-1]
+        next_page = None
+        next_pages = response.css(
+            '.pagination-indexs a::attr(href)').getall()
+        if next_pages:
+            try:
+                next_page = next_pages[-2]
+            except:
+                next_page = next_page[-1]
+            pass
         if next_page is not None:
             yield scrapy.Request(next_page, callback=self.parse)
 
