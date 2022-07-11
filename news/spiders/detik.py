@@ -25,6 +25,19 @@ class DetikSpider(scrapy.Spider):
         for href in urls:
             yield scrapy.Request(href, callback=self.parse_detail)
 
+    def parse_detail(self, response):
+        item = NewsItem()
+        item['date_post'] = self.get_date(response)
+        item['date_post_id'] = self.get_date_post_id(response)
+        item['author'] = self.get_author(response)
+        item['title'] = self.get_title(response)
+        item['link'] = response.url
+        item['content'] = self.get_content(response)
+        yield item
+
+    def get_content(self, response):
+        return self.content_parse(response)
+
     def content_parse(self, response):
         result = ''
         try:
@@ -33,14 +46,24 @@ class DetikSpider(scrapy.Spider):
             pass
         return "".join(result)
 
-    def parse_detail(self, response):
-        item = NewsItem()
+    def get_date(self, response):
+        date_str = self.get_date_post_id(response)
+        if date_str:
+            return date_parse(date_str)
+        return None
+
+    def get_date_post_id(self, response):
         headers = response.css('.detail')
-        date_str = headers.css('.detail__date::text').get()
-        item['date_post'] = date_parse(date_str)
-        item['date_post_id'] = date_str
-        item['author'] = headers.css('.detail__author::text').get()
-        item['title'] = headers.css('h1::text').get().strip()
-        item['link'] = response.url
-        item['content'] = self.content_parse(response)
-        yield item
+        return headers.css('.detail__date::text').get()
+
+    def get_author(self, response):
+        headers = response.css('.detail')
+        author = headers.css('.detail__author::text').get()
+        if author:
+            author = str(author).replace('-', '').strip().title()
+            return author
+        return None
+
+    def get_title(self, response):
+        headers = response.css('.detail')
+        return headers.css('h1::text').get().strip()
