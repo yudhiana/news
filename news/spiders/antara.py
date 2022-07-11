@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import re
-from news.lib import to_number_of_month, remove_tabs, date_parse
-from datetime import datetime
+from news.lib import remove_tabs, date_parse
 from news.items import NewsItem
 
 
