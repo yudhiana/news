@@ -28,7 +28,7 @@ class DetikSpider(scrapy.Spider):
     def parse_detail(self, response):
         item = NewsItem()
         item['date_post'] = self.get_date(response)
-        item['date_post_id'] = self.get_date_post_id(response)
+        item['date_post_local_time'] = self.get_date_post_local_time(response)
         item['author'] = self.get_author(response)
         item['title'] = self.get_title(response)
         item['link'] = response.url
@@ -47,12 +47,12 @@ class DetikSpider(scrapy.Spider):
         return "".join(result)
 
     def get_date(self, response):
-        date_str = self.get_date_post_id(response)
+        date_str = self.get_date_post_local_time(response)
         if date_str:
             return date_parse(date_str)
         return None
 
-    def get_date_post_id(self, response):
+    def get_date_post_local_time(self, response):
         headers = response.css('.detail')
         return headers.css('.detail__date::text').get()
 

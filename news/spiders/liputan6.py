@@ -44,7 +44,7 @@ class Liputan6Spider(scrapy.Spider):
         date_string = response.css(
             'time.read-page--header--author__datetime.updated::text').get()
         item['date_post'] = self.date_parse(date_string)
-        item['date_post_id'] = date_string
+        item['date_post_local_time'] = date_string
         item['author'] = response.css(
             'span.read-page--header--author__name::text').get()
         item['title'] = response.css(

@@ -34,7 +34,7 @@ class TempoSpider(scrapy.Spider):
         if re.search('.*nasional\.tempo.*|.*bisnis\.tempo.*|.*metro\.tempo.*|.*dunia\.tempo.*', response.url):
             item = NewsItem()
             item['date_post'] = self.date_parse(self.get_date_str(response))
-            item['date_post_id'] = self.get_date_str(response)
+            item['date_post_local_time'] = self.get_date_str(response)
             item['author'] = self.get_author(response)
             item['title'] = self.get_title(response)
             item['link'] = response.url
@@ -69,6 +69,7 @@ class TempoSpider(scrapy.Spider):
             author = ' - '.join(author_lst).title()
             return author
         else:
-            author = response.css('.detail-title > div > div:nth-child(2) > div > h4.title.bold > a > span::text').get()
-            return  author
+            author = response.css(
+                '.detail-title > div > div:nth-child(2) > div > h4.title.bold > a > span::text').get()
+            return author
         return None

@@ -48,7 +48,7 @@ class OkezoneSpider(scrapy.Spider):
         item = NewsItem()
         date_string = response.css('.namerep b::text').get()
         item['date_post'] = self.date_parse(date_string)
-        item['date_post_id'] = date_string
+        item['date_post_local_time'] = date_string
         item['author'] = response.css(
             '.namerep ::text').get().replace('\n', '').strip()
         item['title'] = str(response.css('.title h1::text').get()).strip()

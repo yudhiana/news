@@ -26,7 +26,8 @@ class AntaraSpider(scrapy.Spider):
         if re.search('.*www\.antaranews\.com\/berita*', response.url):
             item = NewsItem()
             item['date_post'] = self.get_date(response)
-            item['date_post_id'] = self.get_date_post_id(response)
+            item['date_post_local_time'] = self.get_date_post_local_time(
+                response)
             item['author'] = self.get_author(response)
             item['title'] = self.get_title(response)
             item['link'] = response.url
@@ -51,13 +52,13 @@ class AntaraSpider(scrapy.Spider):
         return None
 
     def get_date(self, response):
-        date_string = self.get_date_post_id(response)
+        date_string = self.get_date_post_local_time(response)
         if date_string:
             date_string = date_string.strip()
             return date_parse(date_string)
         return None
 
-    def get_date_post_id(self, response):
+    def get_date_post_local_time(self, response):
         date_string = response.css(
             'span.article-date ::text').get()
         if date_string:

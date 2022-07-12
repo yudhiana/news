@@ -51,7 +51,7 @@ class SuaraSpider(scrapy.Spider):
                      response.url):
             item = NewsItem()
             item['date_post'] = self.date_parse(self.get_date(response))
-            item['date_post_id'] = self.get_date(response)
+            item['date_post_local_time'] = self.get_date(response)
             item['author'] = self.get_author(response)
             item['title'] = self.get_title(response)
             item['link'] = response.url

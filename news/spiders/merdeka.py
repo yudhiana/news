@@ -46,7 +46,7 @@ class MerdekaSpider(scrapy.Spider):
             author = response.css('.reporter a::text').get()
             item = NewsItem()
             item['date_post'] = self.date_parse(date_string)
-            item['date_post_id'] = date_string
+            item['date_post_local_time'] = date_string
             item['author'] = author
             item['title'] = title
             item['link'] = response.url

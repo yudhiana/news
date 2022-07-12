@@ -32,7 +32,7 @@ class JawaposSpider(scrapy.Spider):
     def parse_detail(self, response):
         item = NewsItem()
         item['date_post'] = self.get_date(response)
-        item['date_post_id'] = self.get_date_post_id(response)
+        item['date_post_local_time'] = self.get_date_post_local_time(response)
         item['author'] = self.get_author(response)
         item['title'] = self.get_title(response)
         item['link'] = response.url
@@ -56,11 +56,11 @@ class JawaposSpider(scrapy.Spider):
     def get_title(self, response):
         return response.css('h1.single-title::text').get().strip()
 
-    def get_date_post_id(self, response):
+    def get_date_post_local_time(self, response):
         return response.css('.time::text').get().replace(',', '').strip()
 
     def get_date(self, response):
-        date_id = self.get_date_post_id(response)
+        date_id = self.get_date_post_local_time(response)
         if date_id:
             return date_parse(date_id)
         return None

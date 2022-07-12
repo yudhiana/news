@@ -45,7 +45,7 @@ class TribunSpider(scrapy.Spider):
         date_str = content.css('#article time ::text').get().strip()
         item = NewsItem()
         item['date_post'] = date_parse(date_str)
-        item['date_post_id'] = date_str
+        item['date_post_local_time'] = date_str
         item['author'] = self.parse_author(response)
         item['title'] = content.css('h1::text').get().strip()
         item['link'] = response.url

@@ -24,7 +24,7 @@ class KompasSpider(scrapy.Spider):
     def parse_detail(self, response):
         item = NewsItem()
         item['date_post'] = self.get_date(response)
-        item['date_post_id'] = self.get_date_post_id(response)
+        item['date_post_local_time'] = self.get_date_post_local_time(response)
         item['author'] = self.get_author(response)
         item['title'] = self.get_title(response)
         item['link'] = response.url
@@ -49,13 +49,13 @@ class KompasSpider(scrapy.Spider):
             return content
         return None
 
-    def get_date_post_id(self, response):
+    def get_date_post_local_time(self, response):
         date = response.css('.read__header .read__time::text').get()
         if date:
             return str(date).replace('Kompas.com - ', '').replace(',', '').replace('-', '').strip()
 
     def get_date(self, response):
-        date = self.get_date_post_id(response)
+        date = self.get_date_post_local_time(response)
         if date:
             return date_parse(date)
         return None

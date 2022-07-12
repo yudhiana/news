@@ -49,7 +49,8 @@ class RepublikaSpider(scrapy.Spider):
         if content_lst:
             content = remove_tabs('\n'.join(content_lst))
         else:
-            content_lst = response.css('[itemprop="articleBody"] p::text').getall()
+            content_lst = response.css(
+                '[itemprop="articleBody"] p::text').getall()
             content = remove_tabs('\n'.join(content_lst))
         return content
 
@@ -62,7 +63,7 @@ class RepublikaSpider(scrapy.Spider):
         link = response.url
         item = NewsItem()
         item['date_post'] = self.date_parse(date_string)
-        item['date_post_id'] = date_string
+        item['date_post_local_time'] = date_string
         item['author'] = author
         item['title'] = title
         item['link'] = link
