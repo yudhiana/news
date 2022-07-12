@@ -2,7 +2,6 @@
 import scrapy
 from news.items import NewsItem
 from news.lib import remove_tabs, date_parse
-from datetime import datetime
 
 
 class OkezoneSpider(scrapy.Spider):
