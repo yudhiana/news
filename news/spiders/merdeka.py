@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from cgitb import reset
 import scrapy
 import re
-from news.lib import remove_tabs, to_number_of_month
+from news.lib import remove_tabs, to_number_of_month, date_parse
 from news.items import NewsItem
 from datetime import datetime
 
@@ -33,22 +34,40 @@ class MerdekaSpider(scrapy.Spider):
         date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
         return date
 
-    def clean_content(self, response):
-        content_lst = response.css('.mdk-body-paragraph p ::text').getall()
-        content = '\n\n'.join(content_lst)
-        return remove_tabs(content)
-
     def parse_detail(self, response):
         if re.search('.*com\/peristiwa\/.*|.*com\/uang\/.*|.*com\/jakarta\/.*|.*com\/dunia\/.*|.*com\/politik\/.*',
                      response.url):
-            title = response.css('h1::text').get()
-            date_string = response.css('.date-post::text').get()
-            author = response.css('.reporter a::text').get()
             item = NewsItem()
-            item['date_post'] = self.date_parse(date_string)
-            item['date_post_local_time'] = date_string
-            item['author'] = author
-            item['title'] = title
+            item['date_post'] = self.get_date(response)
+            item['date_post_local_time'] = self.get_date_post_local_time(
+                response)
+            item['author'] = self.get_author(response)
+            item['title'] = self.get_title(response)
             item['link'] = response.url
-            item['content'] = self.clean_content(response)
+            item['content'] = self.get_content(response)
             return item
+
+    def get_content(self, response):
+        return self.clean_content(response)
+
+    def clean_content(self, response):
+        content_lst = response.css('.mdk-body-paragraph p ::text').getall()
+        if content_lst:
+            content = '\n\n'.join(content_lst)
+            return remove_tabs(content)
+        return None
+
+    def get_title(self, response):
+        return response.css('h1::text').get()
+
+    def get_author(self, response):
+        return response.css('.reporter a::text').get().title()
+
+    def get_date_post_local_time(self, response):
+        return response.css('.date-post::text').get()
+
+    def get_date(self, response):
+        date = self.get_date_post_local_time(response)
+        if date:
+            return date_parse(date)
+        return None
