@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from enum import auto
 import scrapy
 from news.items import NewsItem
-from news.lib import remove_tabs, to_number_of_month
+from news.lib import remove_tabs, to_number_of_month, date_parse
 from datetime import datetime
 
 
@@ -37,18 +38,37 @@ class Liputan6Spider(scrapy.Spider):
 
     def parse_detail(self, response):
         item = NewsItem()
+        item['date_post'] = self.get_date(response)
+        item['date_post_local_time'] = self.get_date_post_local_time(response)
+        item['author'] = self.get_author(response)
+        item['title'] = self.get_title(response)
+        item['link'] = response.url
+        item['content'] = self.get_content(response)
+        return item
+
+    def get_content(self, response):
         content_lst = response.css(
             '.article-content-body__item-content p::text').getall()
-        content = remove_tabs('\n\n'.join(
-            content_lst).replace('Baca Juga', ''))
-        date_string = response.css(
-            'time.read-page--header--author__datetime.updated::text').get()
-        item['date_post'] = self.date_parse(date_string)
-        item['date_post_local_time'] = date_string
-        item['author'] = response.css(
+        if content_lst:
+            content = remove_tabs('\n\n'.join(
+                content_lst).replace('Baca Juga', ''))
+            return content
+        return None
+
+    def get_title(self, response):
+        return response.css('h1.read-page--header--title.entry-title::text').get()
+
+    def get_author(self, response):
+        author = response.css(
             'span.read-page--header--author__name::text').get()
-        item['title'] = response.css(
-            'h1.read-page--header--title.entry-title::text').get()
-        item['link'] = response.url
-        item['content'] = content
-        return item
+        if author:
+            return str(author).title()
+
+    def get_date_post_local_time(self, response):
+        return response.css('time.read-page--header--author__datetime.updated::text').get()
+
+    def get_date(self, response):
+        date = self.get_date_post_local_time(response)
+        if date:
+            return date_parse(date)
+        return None
