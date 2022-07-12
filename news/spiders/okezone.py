@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from operator import index
 import scrapy
 from news.items import NewsItem
-from news.lib import remove_tabs, to_number_of_month
+from news.lib import remove_tabs, date_parse
 from datetime import datetime
 
 
@@ -34,25 +33,34 @@ class OkezoneSpider(scrapy.Spider):
         if next_page is not None:
             yield scrapy.Request(next_page, callback=self.parse)
 
-    def date_parse(self, date_string):
-        date_lst = str(date_string).strip().split(' ')
-        month = to_number_of_month(date_lst[2].lower())
-        date_str = '{}/{}/{} {}:00'.format(date_lst[1],
-                                           month,
-                                           date_lst[3],
-                                           date_lst[4])
-        date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
-        return date
-
     def parse_detail(self, response):
         item = NewsItem()
-        date_string = response.css('.namerep b::text').get()
-        item['date_post'] = self.date_parse(date_string)
-        item['date_post_local_time'] = date_string
-        item['author'] = response.css(
-            '.namerep ::text').get().replace('\n', '').strip()
-        item['title'] = str(response.css('.title h1::text').get()).strip()
+        item['date_post'] = self.get_date(response)
+        item['date_post_local_time'] = self.get_date_post_local_time(response)
+        item['author'] = self.get_author(response)
+        item['title'] = self.get_title(response)
         item['link'] = response.url
-        item['content'] = remove_tabs('\n\n'.join(
-            response.css('#contentx p::text').getall()))
+        item['content'] = self.get_content(response)
         yield item
+
+    def get_content(self, response):
+        content_lst = response.css('#contentx p::text').getall()
+        if content_lst:
+            return remove_tabs('\n\n'.join(content_lst))
+        return None
+
+    def get_title(self, response):
+        return response.css('.title h1::text').get()
+
+    def get_author(self, response):
+        author = response.css('.namerep ::text').get()
+        if author:
+            return author.replace('\n', '').strip()
+
+    def get_date_post_local_time(self, response):
+        return response.css('.namerep b::text').get()
+
+    def get_date(self, response):
+        date = self.get_date_post_local_time(response)
+        if date:
+            return date_parse(date)
