@@ -3,7 +3,6 @@ import scrapy
 import re
 from news.lib import remove_tabs, date_parse
 from news.items import NewsItem
-from datetime import datetime
 
 
 class MerdekaSpider(scrapy.Spider):
