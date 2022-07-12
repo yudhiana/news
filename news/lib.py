@@ -39,6 +39,7 @@ def utc_to_local_month(month):
 def date_parse(date_string):
     local_format = pytz.timezone('Asia/Jakarta')
     date_lst = date_string.split(' ')
+    date = None
     if len(date_lst) == 5:
         try:
             date_lst = date_lst[:-1]
@@ -49,6 +50,14 @@ def date_parse(date_string):
                     date_lst[2].replace(',', '').strip(),
                     date_lst[3].strip())
                 date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
+            elif len(date_lst[-1].split(':')) == 2:
+                date_str = '{}/{}/{} {}'.format(
+                    date_lst[0],
+                    to_number_of_month(date_lst[1].lower()),
+                    date_lst[2].replace(',', '').strip(),
+                    date_lst[3].strip())
+                print(date_str)
+                date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
         except:
             pass
     elif len(date_lst) == 6:
@@ -62,24 +71,26 @@ def date_parse(date_string):
                 date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
         except:
             pass
-    if len(date_lst) == 3:
-        try:
-            date_lst = date_lst[0:2]
-            date_str = ' '.join(date_lst)
-            date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
-        except:
-            pass
-    else:
-        try:
-            date_lst = date_lst[:-1]
-            date_str = ' '.join(date_lst)
-            date = datetime.strptime(date_str, '%Y/%m/%d %H:%M:%S')
-        except:
-            date_str = ' '.join(date_lst)
-            date = datetime.strptime(date_str+":00", '%d/%m/%Y %H:%M:%S')
-    local_time = local_format.localize(date, is_dst=None)
-    utc_time = local_time.astimezone(pytz.utc)
-    return utc_time
+    # if len(date_lst) == 3:
+    #     try:
+    #         date_lst = date_lst[0:2]
+    #         date_str = ' '.join(date_lst)
+    #         date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
+    #     except:
+    #         pass
+    # else:
+    #     try:
+    #         date_lst = date_lst[:-1]
+    #         date_str = ' '.join(date_lst)
+    #         date = datetime.strptime(date_str, '%Y/%m/%d %H:%M:%S')
+    #     except:
+    #         date_str = ' '.join(date_lst)
+    #         date = datetime.strptime(date_str+":00", '%d/%m/%Y %H:%M:%S')
+    if date:
+        local_time = local_format.localize(date, is_dst=None)
+        utc_time = local_time.astimezone(pytz.utc)
+        return utc_time
+    return None
 
 
 def remove_baca_juga(content):
