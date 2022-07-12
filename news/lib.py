@@ -41,7 +41,19 @@ def utc_to_id_month(month):
 def date_parse(date_string):
     local_format = pytz.timezone('Asia/Jakarta')
     date_lst = date_string.split(' ')
-    if len(date_lst) != 3:
+    if len(date_lst) == 5:
+        try:
+            date_lst = date_lst[:-1]
+            if len(date_lst[-1].split(':')) == 3:
+                date_str = '{}/{}/{} {}'.format(
+                    date_lst[0],
+                    to_number_of_month(date_lst[1].lower()),
+                    date_lst[2].replace(',', '').strip(),
+                    date_lst[3].strip())
+                date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
+        except:
+            pass
+    elif len(date_lst) != 3:
         date_lst = date_lst[1:-1]
         date_str = '{}/{}/{} {}:00'.format(date_lst[0],
                                            to_number_of_month(

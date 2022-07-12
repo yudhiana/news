@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 from datetime import datetime
-from news.lib import remove_tabs, to_number_of_month
+from news.lib import remove_tabs, date_parse
 from news.items import NewsItem
 
 
@@ -29,31 +29,38 @@ class JawaposSpider(scrapy.Spider):
         for href in response.css('h3.post-list__title'):
             yield scrapy.Request(href.css('a::attr(href)').get(), callback=self.parse_detail)
 
-    def date_parse(self, date_string):
-        date_lst = str(date_string).strip().split(' ')
-        month = to_number_of_month(date_lst[1].lower())
-        date_str = '{}/{}/{} {}'.format(date_lst[0],
-                                        month,
-                                        date_lst[2].replace(',', '').strip(),
-                                        date_lst[3])
-        date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
-        return date
+    def parse_detail(self, response):
+        item = NewsItem()
+        item['date_post'] = self.get_date(response)
+        item['date_post_id'] = self.get_date_post_id(response)
+        item['author'] = self.get_author(response)
+        item['title'] = self.get_title(response)
+        item['link'] = response.url
+        item['content'] = self.get_content(response)
+        return item
+
+    def get_content(self, response):
+        return self.clean_content(response)
 
     def clean_content(self, response):
         content_lst = response.css('.content p::text').getall()
         content = '\n\n'.join(content_lst)
         return remove_tabs(content)
 
-    def parse_detail(self, response):
-        item = NewsItem()
-        date_string = response.css('.time::text').get().strip()
+    def get_author(self, response):
         author_lst = str(response.css(
             '.content-reporter p::text').get()).split(':')
         author = author_lst[-1].strip()
-        item['date_post'] = self.date_parse(date_string)
-        item['date_post_id'] = date_string
-        item['author'] = author
-        item['title'] = response.css('h1.single-title::text').get().strip()
-        item['link'] = response.url
-        item['content'] = self.clean_content(response)
-        return item
+        return author.title()
+
+    def get_title(self, response):
+        return response.css('h1.single-title::text').get().strip()
+
+    def get_date_post_id(self, response):
+        return response.css('.time::text').get().replace(',', '').strip()
+
+    def get_date(self, response):
+        date_id = self.get_date_post_id(response)
+        if date_id:
+            return date_parse(date_id)
+        return None
