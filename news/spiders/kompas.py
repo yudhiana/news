@@ -3,7 +3,7 @@ import scrapy
 import re
 from datetime import datetime
 from news.items import NewsItem
-from news.lib import remove_tabs
+from news.lib import remove_tabs, date_parse
 
 
 class KompasSpider(scrapy.Spider):
@@ -23,17 +23,12 @@ class KompasSpider(scrapy.Spider):
 
     def parse_detail(self, response):
         item = NewsItem()
-        date = response.css('.read__header .read__time::text').get().replace(
-            'Kompas.com - ', '').replace(',', '').replace('-', '').strip()
-        content = '\n\n'.join(response.css('.read__content p::text').getall())
-        content = remove_tabs(content)
-        item['date_post'] = datetime.strptime(
-            ' '.join(date.split(' ')[0:2]), '%d/%m/%Y %H:%M')
-        item['date_post_id'] = date
+        item['date_post'] = self.get_date(response)
+        item['date_post_id'] = self.get_date_post_id(response)
         item['author'] = self.get_author(response)
-        item['title'] = response.css('h1.read__title::text').get()
+        item['title'] = self.get_title(response)
         item['link'] = response.url
-        item['content'] = content
+        item['content'] = self.get_content(response)
         yield item
 
     def get_author(self, response):
@@ -41,4 +36,26 @@ class KompasSpider(scrapy.Spider):
             '.read__header .read__author a::text').get()
         if author is None:
             author = response.css('.read__credit__item a ::text').get()
-        return author
+        return author.title()
+
+    def get_title(self, response):
+        return response.css('h1.read__title::text').get()
+
+    def get_content(self, response):
+        content_lst = response.css('.read__content p::text').getall()
+        if content_lst:
+            content = '\n\n'.join(content_lst)
+            content = remove_tabs(content)
+            return content
+        return None
+
+    def get_date_post_id(self, response):
+        date = response.css('.read__header .read__time::text').get()
+        if date:
+            return str(date).replace('Kompas.com - ', '').replace(',', '').replace('-', '').strip()
+
+    def get_date(self, response):
+        date = self.get_date_post_id(response)
+        if date:
+            return date_parse(date)
+        return None

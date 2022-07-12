@@ -62,6 +62,13 @@ def date_parse(date_string):
                 date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
         except:
             pass
+    if len(date_lst) == 3:
+        try:
+            date_lst = date_lst[0:2]
+            date_str = ' '.join(date_lst)
+            date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
+        except:
+            pass
     else:
         try:
             date_lst = date_lst[:-1]
