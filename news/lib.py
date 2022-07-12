@@ -6,15 +6,13 @@ import pytz
 def to_number_of_month(month_str):
     nick_month = {'jan': 'januari', 'feb': 'februari', 'mar': 'maret', 'apr': 'april', 'mei': 'mei', 'jun': 'juni', 'jul': 'juli',
                   'agu': 'agustus', 'ags': 'agustus', 'agu/ags': 'agustus', 'sep': 'september', 'okt': 'oktober', 'nov': 'november', 'des': 'desember'}
-    try:
-        month_str = nick_month[month_str]
-    except:
-        pass
+
+    month_str = nick_month[month_str]
     month_lst = [('januari', '01'), ('februari', '02'), ('maret', '03'), ('april', '04'),
                  ('mei', '05'), ('juni', '06'), ('juli', '07'), ('agustus', '08'),
                  ('september', '09'), ('oktober', '10'), ('november', '11'), ('december', '12')]
     month = [x[1] for x in month_lst if x[0] == month_str]
-    return ''.join(month)
+    return month[0]
 
 
 def remove_tabs(content):
@@ -53,13 +51,17 @@ def date_parse(date_string):
                 date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
         except:
             pass
-    elif len(date_lst) != 3:
+    elif len(date_lst) == 6:
         date_lst = date_lst[1:-1]
-        date_str = '{}/{}/{} {}:00'.format(date_lst[0],
-                                           to_number_of_month(
-                                               date_lst[1].lower()),
-                                           date_lst[2].replace(',', ''), date_lst[3])
-        date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
+        try:
+            if len(date_lst[-1].split(':')) == 2:
+                date_str = '{}/{}/{} {}'.format(date_lst[0],
+                                                to_number_of_month(
+                    date_lst[1].lower()),
+                    date_lst[2].replace(',', ''), date_lst[3])
+                date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
+        except:
+            pass
     else:
         try:
             date_lst = date_lst[:-1]
