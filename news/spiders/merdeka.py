@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from cgitb import reset
 import scrapy
 import re
 from news.lib import remove_tabs, to_number_of_month, date_parse
