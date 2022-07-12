@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import re
-from news.lib import to_number_of_month, remove_tabs
+from news.lib import remove_tabs, date_parse
 from news.items import NewsItem
 from datetime import datetime
 
@@ -20,21 +20,12 @@ class TempoSpider(scrapy.Spider):
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse_detail)
 
-    def date_parse(self, date_string):
-        date_lst = str(date_string).strip().split(' ')
-        month = to_number_of_month(date_lst[2].lower())
-        date_str = '{}/{}/{} {}:00'.format(date_lst[1],
-                                           month,
-                                           date_lst[3],
-                                           date_lst[4])
-        date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
-        return date
-
     def parse_detail(self, response):
         if re.search('.*nasional\.tempo.*|.*bisnis\.tempo.*|.*metro\.tempo.*|.*dunia\.tempo.*', response.url):
             item = NewsItem()
-            item['date_post'] = self.date_parse(self.get_date_str(response))
-            item['date_post_local_time'] = self.get_date_str(response)
+            item['date_post'] = self.get_date(response)
+            item['date_post_local_time'] = self.get_date_post_local_time(
+                response)
             item['author'] = self.get_author(response)
             item['title'] = self.get_title(response)
             item['link'] = response.url
@@ -42,7 +33,7 @@ class TempoSpider(scrapy.Spider):
                 response.css('#isi p::text').getall()))
             yield item
 
-    def get_date_str(self, response):
+    def get_date_post_local_time(self, response):
         date_string = response.css('span#date::text').get()
         if not date_string:
             date_string = response.css('.detail-title .date::text').get()
@@ -59,6 +50,7 @@ class TempoSpider(scrapy.Spider):
         return title
 
     def get_author(self, response):
+        author = None
         author_lst = response.css('#article #author ::text').getall()
         author_lst = [re.sub('[\r\t\n]', '', x).lower()
                       for x in author_lst]
@@ -67,9 +59,15 @@ class TempoSpider(scrapy.Spider):
         author_lst = [x for x in author_lst if len(x) != 0]
         if author_lst:
             author = ' - '.join(author_lst).title()
-            return author
         else:
             author = response.css(
                 '.detail-title > div > div:nth-child(2) > div > h4.title.bold > a > span::text').get()
-            return author
+            if author:
+                author = author.title()
+        return author
+
+    def get_date(self, response):
+        date = self.get_date_post_local_time(response)
+        if date:
+            return date_parse(date)
         return None
