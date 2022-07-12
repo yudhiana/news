@@ -47,7 +47,7 @@ class SindoSpider(scrapy.Spider):
         author = response.css('.article .reporter p a::text').get()
         if not author:
             author = response.css('.detail-nama-redaksi a::text').get()
-        return author
+        return author.title()
 
     def get_title(self, response):
         title = response.css('.article h1::text').get()
