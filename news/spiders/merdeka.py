@@ -21,18 +21,6 @@ class MerdekaSpider(scrapy.Spider):
         if next_page:
             yield scrapy.Request(next_page, callback=self.parse)
 
-    def date_parse(self, date_string):
-        date_lst = str(date_string).strip().split(' ')
-        month = to_number_of_month(date_lst[2].lower())
-        time = date_lst[4]
-        time = time if len(time.split(':')) > 2 else '{}:00'.format(time)
-        date_str = '{}/{}/{} {}'.format(date_lst[1],
-                                        month,
-                                        date_lst[3],
-                                        time)
-        date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
-        return date
-
     def parse_detail(self, response):
         if re.search('.*com\/peristiwa\/.*|.*com\/uang\/.*|.*com\/jakarta\/.*|.*com\/dunia\/.*|.*com\/politik\/.*',
                      response.url):
