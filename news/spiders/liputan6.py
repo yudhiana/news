@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from enum import auto
 import scrapy
 from news.items import NewsItem
 from news.lib import remove_tabs, to_number_of_month, date_parse
