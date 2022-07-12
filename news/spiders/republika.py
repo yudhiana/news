@@ -2,8 +2,9 @@
 import scrapy
 import re
 from news.items import NewsItem
-from news.lib import remove_tabs, to_number_of_month, utc_to_local_month
+from news.lib import remove_tabs, date_parse
 from datetime import datetime
+from urllib.parse import urlparse
 
 
 class RepublikaSpider(scrapy.Spider):
@@ -23,6 +24,28 @@ class RepublikaSpider(scrapy.Spider):
             if next_page:
                 yield scrapy.Request(next_page[-1], callback=self.parse)
 
+    def parse_detail(self, response):
+        link_url = urlparse(response.url)
+        if re.search('^republika', link_url.hostname):
+            item = NewsItem()
+            item['date_post'] = self.get_date(response)
+            item['date_post_local_time'] = self.get_date_post_local_time(
+                response)
+            item['author'] = self.get_author(response)
+            item['title'] = self.get_title(response)
+            item['link'] = response.url
+            item['content'] = self.get_content(response)
+            return item
+
+    def get_content(self, response):
+        return self.clean_content(response)
+
+    def get_author(self, response):
+        author = response.css('.by > span > p::text').get()
+        if author:
+            return self.clean_author(author)
+        return None
+
     def clean_author(self, author_str):
         author_lst = str(author_str).strip().replace(
             '\n', '').strip().split(':')
@@ -31,18 +54,7 @@ class RepublikaSpider(scrapy.Spider):
         author_lst = [x for x in author_lst if len(x) != 0]
         author = ' - '.join(author_lst) if len(
             author_lst) > 1 else ''.join(author_lst)
-        return author
-
-    def date_parse(self, date_string):
-        date_lst = str(date_string).strip().split(' ')
-        month = utc_to_local_month(date_lst[2].lower())
-        month = to_number_of_month(month)
-        date_str = '{}/{}/{} {}:00'.format(date_lst[1],
-                                           month,
-                                           date_lst[3],
-                                           date_lst[4])
-        date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
-        return date
+        return author.title()
 
     def clean_content(self, response):
         content_lst = response.css('.artikel  p ::text').getall()
@@ -54,18 +66,17 @@ class RepublikaSpider(scrapy.Spider):
             content = remove_tabs('\n'.join(content_lst))
         return content
 
-    def parse_detail(self, response):
-        title = response.css('.wrap_detail_set h1::text').get()
+    def get_date_post_local_time(self, response):
         date_string = response.css('.date_detail p::text').get()
-        date_string = re.sub('[ ]+', ' ', date_string)
-        author = response.css('.by > span > p::text').get()
-        author = self.clean_author(author)
-        link = response.url
-        item = NewsItem()
-        item['date_post'] = self.date_parse(date_string)
-        item['date_post_local_time'] = date_string
-        item['author'] = author
-        item['title'] = title
-        item['link'] = link
-        item['content'] = self.clean_content(response)
-        return item
+        if date_string:
+            return re.sub('[ ]+', ' ', date_string)
+        return None
+
+    def get_title(self, response):
+        return response.css('.wrap_detail_set h1::text').get()
+
+    def get_date(self, response):
+        date = self.get_date_post_local_time(response)
+        if date:
+            return date_parse(date)
+        return None
