@@ -2,7 +2,7 @@
 import scrapy
 import re
 from datetime import datetime
-from news.lib import remove_tabs, to_number_of_month
+from news.lib import remove_tabs, date_parse
 from news.items import NewsItem
 
 
@@ -31,43 +31,29 @@ class SuaraSpider(scrapy.Spider):
                 next_page = next_page.css('::attr(href)').get()
                 yield scrapy.Request(next_page, callback=self.parse)
 
-    def clean_content(self, response):
-        content_lst = response.css('.content-article p ::text').getall()
-        content = '\n\n'.join(content_lst)
-        return remove_tabs(content)
-
-    def date_parse(self, date_string):
-        date_lst = str(date_string).strip().split(' ')
-        month = to_number_of_month(date_lst[2].lower())
-        date_str = '{}/{}/{} {}:00'.format(date_lst[1],
-                                           month,
-                                           date_lst[3],
-                                           date_lst[5])
-        date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
-        return date
-
     def parse_detail(self, response):
         if re.search('.*suara\.com\/news\/.*|.*suara\.com\/bisnis\/.*|.*suara\.com\/dpr\/.*|.*suara\.com\/read\/.*',
                      response.url):
             item = NewsItem()
-            item['date_post'] = self.date_parse(self.get_date(response))
-            item['date_post_local_time'] = self.get_date(response)
+            item['date_post'] = self.get_date(response)
+            item['date_post_local_time'] = self.get_date_post_local_time(
+                response)
             item['author'] = self.get_author(response)
             item['title'] = self.get_title(response)
             item['link'] = response.url
             item['content'] = self.get_content(response)
             return item
 
-    def get_date(self, response):
+    def get_date_post_local_time(self, response):
         date_string = response.css('.dateDetail .fr time::text').get()
         if date_string:
-            return date_string
+            return date_string.replace('| ', '').strip()
         else:
             date_obj = response.css('.detail--info span::text').getall()
             if date_obj:
                 obj = date_obj[-1]
                 if obj:
-                    return obj.strip()
+                    return obj.replace('| ', '').strip()
         return None
 
     def get_author(self, response):
@@ -90,3 +76,14 @@ class SuaraSpider(scrapy.Spider):
         if not title:
             title = response.css('.detail h1::text').get()
         return title
+
+    def get_date(self, response):
+        date = self.get_date_post_local_time(response)
+        if date:
+            return date_parse(date)
+        return None
+
+    def clean_content(self, response):
+        content_lst = response.css('.content-article p ::text').getall()
+        content = '\n\n'.join(content_lst)
+        return remove_tabs(content)
