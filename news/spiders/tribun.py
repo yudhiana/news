@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import scrapy
-import re
 from datetime import datetime
 from news.items import NewsItem
 from news.lib import date_parse
