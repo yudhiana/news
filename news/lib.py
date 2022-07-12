@@ -43,14 +43,13 @@ def date_parse(date_string):
     if len(date_lst) == 5:
         try:
             new_date_lst = date_lst[:-1]
-            # print(new_date_lst, len(new_date_lst))
             if len(new_date_lst[-1].split(':')) == 3:
                 date_str = '{}/{}/{} {}'.format(
                     new_date_lst[0],
                     to_number_of_month(new_date_lst[1].lower()),
                     new_date_lst[2].replace(',', '').strip(),
                     new_date_lst[3].strip())
-                print(date_str)
+
                 date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
             elif len(new_date_lst[-1].split(':')) == 2:
                 date_str = '{}/{}/{} {}'.format(
@@ -58,7 +57,7 @@ def date_parse(date_string):
                     to_number_of_month(new_date_lst[1].lower()),
                     new_date_lst[2].replace(',', '').strip(),
                     new_date_lst[3].strip())
-                print(date_str)
+
                 date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
             elif len(new_date_lst[-1].split(':')) == 1:
                 new_date_lst = date_lst[1:]
@@ -68,7 +67,7 @@ def date_parse(date_string):
                         to_number_of_month(new_date_lst[1].lower()),
                         new_date_lst[2].replace(',', '').strip(),
                         new_date_lst[3].strip())
-                    print(date_str)
+
                     date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
                 else:
                     date_str = '{}/{}/{} {}'.format(
@@ -76,7 +75,7 @@ def date_parse(date_string):
                         to_number_of_month(new_date_lst[1].lower()),
                         new_date_lst[2].replace(',', '').strip(),
                         new_date_lst[3].strip())
-                    print(new_date_lst[-1])
+
                     date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
         except:
             pass
@@ -91,21 +90,6 @@ def date_parse(date_string):
                 date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
         except:
             pass
-    # if len(date_lst) == 3:
-    #     try:
-    #         date_lst = date_lst[0:2]
-    #         date_str = ' '.join(date_lst)
-    #         date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
-    #     except:
-    #         pass
-    # else:
-    #     try:
-    #         date_lst = date_lst[:-1]
-    #         date_str = ' '.join(date_lst)
-    #         date = datetime.strptime(date_str, '%Y/%m/%d %H:%M:%S')
-    #     except:
-    #         date_str = ' '.join(date_lst)
-    #         date = datetime.strptime(date_str+":00", '%d/%m/%Y %H:%M:%S')
     if date:
         local_time = local_format.localize(date, is_dst=None)
         utc_time = local_time.astimezone(pytz.utc)
