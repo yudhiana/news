@@ -2,7 +2,7 @@
 import scrapy
 import re
 from news.items import NewsItem
-from news.lib import remove_tabs, to_number_of_month, remove_baca_juga
+from news.lib import remove_tabs, remove_baca_juga, date_parse
 from datetime import datetime
 
 
@@ -33,21 +33,10 @@ class SindoSpider(scrapy.Spider):
                     'https://index.sindonews.com/index/0/{}?t={}'.format(pg, self.date))
         return result
 
-    def date_parse(self, date_string):
-        date_lst = str(date_string).strip().split(' ')
-        month = to_number_of_month(date_lst[2].lower())
-        date_str = '{}/{}/{} {}:00'.format(date_lst[1],
-                                           month,
-                                           date_lst[3],
-                                           date_lst[5])
-        date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
-        return date
-
     def parse_detail(self, response):
         item = NewsItem()
-        date_string = response.css('.detail-date-artikel::text').get()
-        item['date_post'] = self.date_parse(date_string)
-        item['date_post_local_time'] = date_string
+        item['date_post'] = self.get_date(response)
+        item['date_post_local_time'] = self.get_date_post_local_time(response)
         item['author'] = self.get_author(response)
         item['title'] = self.get_title(response)
         item['link'] = response.url
@@ -67,12 +56,25 @@ class SindoSpider(scrapy.Spider):
         return title
 
     def get_content(self, response):
-        content = remove_tabs(
-            '\n'.join(response.css('.article #content::text').getall()))
+        content = None
+        content_lst = response.css('.article #content::text').getall()
+        if content_lst:
+            content = remove_tabs('\n'.join(content_lst))
         if not content:
-            print("========= empty =============")
-            content = response.css('.detail-desc ::text').getall()
-            content = '\n'.join(content)
+            content_lst = response.css('.detail-desc ::text').getall()
             if content:
-                content = remove_baca_juga(content)
+                content = '\n'.join(content_lst)
+                return remove_baca_juga(content)
         return content
+
+    def get_date_post_local_time(self, response):
+        date_string = response.css('.detail-date-artikel::text').get()
+        if date_string:
+            return date_string.replace('- ', '')
+        return None
+
+    def get_date(self, response):
+        date = self.get_date_post_local_time(response)
+        if date:
+            return date_parse(date)
+        return None
