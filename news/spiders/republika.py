@@ -2,7 +2,7 @@
 import scrapy
 import re
 from news.items import NewsItem
-from news.lib import remove_tabs, to_number_of_month, utc_to_id_month
+from news.lib import remove_tabs, to_number_of_month, utc_to_local_month
 from datetime import datetime
 
 
@@ -35,7 +35,7 @@ class RepublikaSpider(scrapy.Spider):
 
     def date_parse(self, date_string):
         date_lst = str(date_string).strip().split(' ')
-        month = utc_to_id_month(date_lst[2].lower())
+        month = utc_to_local_month(date_lst[2].lower())
         month = to_number_of_month(month)
         date_str = '{}/{}/{} {}:00'.format(date_lst[1],
                                            month,

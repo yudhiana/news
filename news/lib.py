@@ -20,7 +20,7 @@ def remove_tabs(content):
     return content
 
 
-def utc_to_id_month(month):
+def utc_to_local_month(month):
     month_name = None
     month = str(month).lower()
     UTC = [('january', 'januari'), ('february', 'februari'), ('march', 'maret'), ('april', 'april'),
