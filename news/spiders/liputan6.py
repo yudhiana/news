@@ -25,16 +25,6 @@ class Liputan6Spider(scrapy.Spider):
         for item in item_link:
             yield scrapy.Request(url=item.css('::attr(href)').get(), callback=self.parse_detail)
 
-    def date_parse(self, date_string):
-        date_lst = str(date_string).strip().split(' ')
-        month = to_number_of_month(date_lst[1].lower())
-        date_str = '{}/{}/{} {}:00'.format(date_lst[0],
-                                           month,
-                                           date_lst[2].replace(',', ''),
-                                           date_lst[3])
-        date = datetime.strptime(date_str, '%d/%m/%Y %H:%M:%S')
-        return date
-
     def parse_detail(self, response):
         item = NewsItem()
         item['date_post'] = self.get_date(response)

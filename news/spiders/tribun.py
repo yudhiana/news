@@ -56,7 +56,7 @@ class TribunSpider(scrapy.Spider):
         scripts = response.css("script")
         for script in scripts:
             script_type = script.css('::attr(type)').get()
-            if script_type is not None:
+            if script_type:
                 if 'application/ld+json' in script_type:
                     data = loads(script.css("::text").get().replace(
                         "\n", "").replace("\t", "").strip())

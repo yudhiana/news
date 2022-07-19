@@ -13,3 +13,9 @@ news/spiders/.*pyc
 *venv
 *env
 *.json
+*build
+*dbs
+*logs
+*info
+*eggs
+*setup.py
