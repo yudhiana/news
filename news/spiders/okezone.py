@@ -29,7 +29,7 @@ class OkezoneSpider(scrapy.Spider):
             except:
                 next_page = next_page[-1]
             pass
-        if next_page is not None:
+        if next_page:
             yield scrapy.Request(next_page, callback=self.parse)
 
     def parse_detail(self, response):
