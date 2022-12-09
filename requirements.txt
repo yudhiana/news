@@ -5,7 +5,7 @@ certifi==2022.12.7
 cffi==1.15.1
 chardet==5.0.0
 constantly==15.1.0
-cryptography==37.0.4
+cryptography==38.0.3
 cssselect==1.1.0
 fake-useragent==0.1.11
 Faker==13.15.0
