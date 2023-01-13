@@ -9,15 +9,10 @@ from datetime import datetime
 class TempoSpider(scrapy.Spider):
     name = 'tempo'
     allowed_domains = ['tempo.co']
-    date = datetime.now().strftime('%Y/%m/%d')
-    start_urls = ['http://tempo.co/indeks/{}'.format(date)]
+    start_urls = ['https://tempo.co/indeks']
 
     def parse(self, response):
-        urls = response.css(
-            '#article > div.col > section > ul > li  > div > div > a:nth-child(2)::attr(href)').getall()
-        if not urls:
-            urls = response.css('article h4 a::attr(href)').getall()
-        for url in urls:
+        for url in response.css('.text-card a::attr(href)').getall():
             yield scrapy.Request(url=url, callback=self.parse_detail)
 
     def parse_detail(self, response):
@@ -29,9 +24,12 @@ class TempoSpider(scrapy.Spider):
             item['author'] = self.get_author(response)
             item['title'] = self.get_title(response)
             item['link'] = response.url
-            item['content'] = remove_tabs('\n\n'.join(
-                response.css('#isi p::text').getall()))
-            yield item
+            item['tags'] = self.get_tags(response)
+            item['source'] = self.name
+
+            if item['tags'] and item['date_post']:
+                yield item
+
 
     def get_date_post_local_time(self, response):
         date_string = response.css('span#date::text').get()
@@ -70,4 +68,10 @@ class TempoSpider(scrapy.Spider):
         date = self.get_date_post_local_time(response)
         if date:
             return date_parse(date)
+        return None
+
+    def get_tags(self, response):
+        tags = response.css('.box-tag-detail a::text').getall()
+        if tags:
+            return tags
         return None
