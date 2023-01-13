@@ -17,3 +17,5 @@ class NewsItem(scrapy.Item):
     date_post = scrapy.Field()
     link = scrapy.Field()
     content = scrapy.Field()
+    tags = scrapy.Field()
+    source = scrapy.Field()
