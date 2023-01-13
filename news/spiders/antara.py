@@ -31,7 +31,8 @@ class AntaraSpider(scrapy.Spider):
             item['author'] = self.get_author(response)
             item['title'] = self.get_title(response)
             item['link'] = response.url
-            item['content'] = self.get_content(response)
+            item['tags'] = self.get_tags(response)
+            item['source'] = self.name
             return item
 
     def get_author(self, response):
@@ -74,3 +75,9 @@ class AntaraSpider(scrapy.Spider):
                       for x in author_lst]
         author_lst = [x for x in author_lst if len(x) != 0]
         return ' - '.join(author_lst)
+
+    def get_tags(self, response):
+        tags = response.css('.tags-widget  li a::text').getall()
+        if tags:
+            return tags
+        return None
