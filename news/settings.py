@@ -78,11 +78,23 @@ FAKEUSERAGENT_PROVIDERS = [
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#     'news.pipelines.NewsPipeline': 300,
-# }
+ITEM_PIPELINES = {
+    # 'news.pipelines.NewsPipeline': 300,
+    'news.pipelines.ElasticSearchPipeline': 500
+}
+
+
 MONGO_URI = 'mongodb://localhost:27017/'
 MONGO_DB = 'news'
+
+
+ELASTICSEARCH_HOSTS = 'http://localhost'
+ELASTICSEARCH_PORT = '9200'
+ELASTICSEARCH_INDEX = 'news'
+ELASTICSEARCH_USERNAME = ''
+ELASTICSEARCH_PASSWORD = ''
+ELASTICSEARCH_TYPE = '_doc'
+ELASTICSEARCH_UNIQ_KEY = 'url'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
