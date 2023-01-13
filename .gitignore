@@ -11,7 +11,7 @@ news/spiders/.*pyc
 
 # Environtment #
 *venv
-*env
+*env*
 *.json
 *build
 *dbs
