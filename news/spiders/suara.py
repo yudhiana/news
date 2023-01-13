@@ -4,15 +4,15 @@ import re
 from datetime import datetime
 from news.lib import remove_tabs, date_parse
 from news.items import NewsItem
+from urllib.parse import urlparse
 
 
 class SuaraSpider(scrapy.Spider):
     name = 'suara'
-    allowed_domains = ['suara.com']
+    allowed_domains = ['www.suara.com']
     year = datetime.now().year
     base_link = 'https://www.suara.com/indeks/terkini/'
-    categories = ['news', 'bisnis', 'banten',
-                  'jabar', 'jateng', 'jatim', 'jogja']
+    categories = ['news', 'bisnis']
 
     def start_requests(self):
         for category in self.categories:
@@ -32,17 +32,22 @@ class SuaraSpider(scrapy.Spider):
                 yield scrapy.Request(next_page, callback=self.parse)
 
     def parse_detail(self, response):
-        if re.search('.*suara\.com\/news\/.*|.*suara\.com\/bisnis\/.*|.*suara\.com\/dpr\/.*|.*suara\.com\/read\/.*',
-                     response.url):
-            item = NewsItem()
-            item['date_post'] = self.get_date(response)
-            item['date_post_local_time'] = self.get_date_post_local_time(
-                response)
-            item['author'] = self.get_author(response)
-            item['title'] = self.get_title(response)
-            item['link'] = response.url
-            item['content'] = self.get_content(response)
-            return item
+        part_url = urlparse(response.url)
+        if part_url.netloc == self.allowed_domains[0]:
+            allowed_path = ['news','bisnis','dpr','read']
+            if part_url.path.split('/')[1] in allowed_path:
+                item = NewsItem()
+                item['date_post'] = self.get_date(response)
+                item['date_post_local_time'] = self.get_date_post_local_time(
+                    response)
+                item['author'] = self.get_author(response)
+                item['title'] = self.get_title(response)
+                item['link'] = response.url
+                item['tags'] = self.get_tags(response)
+                item['source'] = self.name
+
+                if item['tags'] and item['date_post']:
+                    return item
 
     def get_date_post_local_time(self, response):
         date_string = response.css('.dateDetail .fr time::text').get()
@@ -87,3 +92,10 @@ class SuaraSpider(scrapy.Spider):
         content_lst = response.css('.content-article p ::text').getall()
         content = '\n\n'.join(content_lst)
         return remove_tabs(content)
+
+    def get_tags(self, response):
+        tags = response.css('.tagList a::text').getall()
+        if tags:
+            tags = [tag.replace('#','').strip() if '#' in tag else tag.strip() for tag in tags]
+            return tags
+        return None
