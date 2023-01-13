@@ -28,7 +28,8 @@ class KompasSpider(scrapy.Spider):
         item['author'] = self.get_author(response)
         item['title'] = self.get_title(response)
         item['link'] = response.url
-        item['content'] = self.get_content(response)
+        item['tags'] = self.get_tags(response)
+        item['source'] = self.name
         yield item
 
     def get_author(self, response):
@@ -58,4 +59,10 @@ class KompasSpider(scrapy.Spider):
         date = self.get_date_post_local_time(response)
         if date:
             return date_parse(date)
+        return None
+
+    def get_tags(self, response):
+        tags = response.css('.tag li a::text').getall()
+        if tags:
+            return tags
         return None

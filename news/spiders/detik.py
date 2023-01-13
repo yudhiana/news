@@ -47,7 +47,7 @@ class DetikSpider(scrapy.Spider):
             item['title'] = self.get_title(response)
             item['link'] = response.url
             item['tags'] = self.get_tags(response)
-            item['source'] = 'detik'
+            item['source'] = self.name
             yield item
 
     def get_content(self, response):

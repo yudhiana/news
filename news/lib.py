@@ -90,6 +90,14 @@ def date_parse(date_string):
                 date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
         except:
             pass
+    elif len(date_lst) == 3:
+        date_lst = date_lst[0:-1]
+        try:
+            if "/" in date_lst[0]:
+                if ":" in date_lst[1]:
+                    date = datetime.strptime('{} {}'.format(date_lst[0], date_lst[1]), '%d/%m/%Y %H:%M')
+        except:
+            pass
     if date:
         local_time = local_format.localize(date, is_dst=None)
         utc_time = local_time.astimezone(pytz.utc)
