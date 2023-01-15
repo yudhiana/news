@@ -32,7 +32,8 @@ class Liputan6Spider(scrapy.Spider):
         item['author'] = self.get_author(response)
         item['title'] = self.get_title(response)
         item['link'] = response.url
-        item['content'] = self.get_content(response)
+        item['tags'] = self.get_tags(response)
+        item['source'] = self.name
         return item
 
     def get_content(self, response):
@@ -60,4 +61,10 @@ class Liputan6Spider(scrapy.Spider):
         date = self.get_date_post_local_time(response)
         if date:
             return date_parse(date)
+        return None
+
+    def get_tags(self, response):
+        tags = response.css('.tags--snippet li a span::text').getall()
+        if tags:
+            return tags
         return None
