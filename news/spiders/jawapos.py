@@ -36,7 +36,8 @@ class JawaposSpider(scrapy.Spider):
         item['author'] = self.get_author(response)
         item['title'] = self.get_title(response)
         item['link'] = response.url
-        item['content'] = self.get_content(response)
+        item['tags'] = self.get_tags(response)
+        item['source'] = self.name
         return item
 
     def get_content(self, response):
@@ -63,4 +64,10 @@ class JawaposSpider(scrapy.Spider):
         date_id = self.get_date_post_local_time(response)
         if date_id:
             return date_parse(date_id)
+        return None
+
+    def get_tags(self, response):
+        tags = response.css('.content-tag .tag-list a::text').getall()
+        if tags:
+            return tags
         return None

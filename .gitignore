@@ -19,3 +19,4 @@ news/spiders/.*pyc
 *info
 *eggs
 *setup.py
+*.sh
