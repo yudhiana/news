@@ -12,9 +12,9 @@ class MerdekaSpider(scrapy.Spider):
 
     def parse(self, response):
         for href in response.css('a.mdk-tag-contln-title'):
-            detailpage = href.css('::attr(href)').get()
-            detailpage = response.urljoin(detailpage)
-            yield scrapy.Request(detailpage, callback=self.parse_detail)
+            detail_page = href.css('::attr(href)').get()
+            detail_page = response.urljoin(detail_page)
+            yield scrapy.Request(detail_page, callback=self.parse_detail)
 
         next_page = response.css('span.selected +a::attr(href)').get()
         if next_page:
@@ -30,7 +30,8 @@ class MerdekaSpider(scrapy.Spider):
             item['author'] = self.get_author(response)
             item['title'] = self.get_title(response)
             item['link'] = response.url
-            item['content'] = self.get_content(response)
+            item['tags'] = self.get_tags(response)
+            item['source'] = self.name
             return item
 
     def get_content(self, response):
@@ -56,4 +57,10 @@ class MerdekaSpider(scrapy.Spider):
         date = self.get_date_post_local_time(response)
         if date:
             return date_parse(date)
+        return None
+
+    def get_tags(self, response):
+        tags = response.css('.mdk-list-terkait a::text').getall()
+        if tags:
+            return tags
         return None
