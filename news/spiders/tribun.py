@@ -15,11 +15,11 @@ class TribunSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        lastpage = response.css(
+        last_page = response.css(
             ".paging a::attr(href)").getall()[-1].split('page=')
-        pages = int(lastpage[1])
+        pages = int(last_page[1])
         for page in range(2, pages+1):
-            next_page = lastpage[0] + "page=" + str(page)
+            next_page = last_page[0] + "page=" + str(page)
             yield scrapy.Request(next_page, callback=self.parse)
 
         urls = response.css('h3 a::attr(href)').getall()
@@ -33,7 +33,8 @@ class TribunSpider(scrapy.Spider):
         item['author'] = self.get_author(response)
         item['title'] = self.get_title(response)
         item['link'] = response.url
-        item['content'] = self.get_content(response)
+        item['tags'] = self.get_tags(response)
+        item['source'] = self.name
         yield item
 
     def get_content(self, response):
@@ -61,7 +62,9 @@ class TribunSpider(scrapy.Spider):
                     data = loads(script.css("::text").get().replace(
                         "\n", "").replace("\t", "").strip())
                     if 'author' in data:
-                        author = data['author']['name'].title()
+                        author_name = data['author']['name']
+                        if author_name:
+                            return str(author_name).title()
         return author
 
     def get_date_post_local_time(self, response):
@@ -72,4 +75,10 @@ class TribunSpider(scrapy.Spider):
         date = self.get_date_post_local_time(response)
         if date:
             return date_parse(date)
+        return None
+
+    def get_tags(self, response):
+        tags = response.css('.tag a::text').getall()
+        if tags:
+            return [tag.replace('#','').strip() if '#' else tag.strip() in tag for tag in tags]
         return None
