@@ -20,17 +20,14 @@ class OkezoneSpider(scrapy.Spider):
         for href in response.css('ul.list-berita li h4 a::attr(href)'):
             yield scrapy.Request(url=href.get(), callback=self.parse_detail)
 
-        next_page = None
-        next_pages = response.css(
-            '.pagination-indexs a::attr(href)').getall()
-        if next_pages:
-            try:
-                next_page = next_pages[-2]
-            except:
-                next_page = next_page[-1]
-            pass
-        if next_page:
-            yield scrapy.Request(next_page, callback=self.parse)
+        has_next_page = None
+        has_next_page = response.css('.pagination-indexs a::text').getall()
+        if has_next_page:
+            if 'next' in str(has_next_page[-1]).lower():
+                next_pages = response.css('.pagination-indexs a::attr(href)').getall()
+                if next_pages:
+                    next_page = next_pages[-1]
+                    yield scrapy.Request(next_page, callback=self.parse)
 
     def parse_detail(self, response):
         item = NewsItem()
@@ -39,7 +36,8 @@ class OkezoneSpider(scrapy.Spider):
         item['author'] = self.get_author(response)
         item['title'] = self.get_title(response)
         item['link'] = response.url
-        item['content'] = self.get_content(response)
+        item['tags'] = self.get_tags(response)
+        item['source'] = self.name
         yield item
 
     def get_content(self, response):
@@ -57,9 +55,15 @@ class OkezoneSpider(scrapy.Spider):
             return author.replace('\n', '').strip()
 
     def get_date_post_local_time(self, response):
-        return response.css('.namerep b::text').get()
+        time = response.css('.namerep b::text').get()
+        if time:
+            return time
+        return response.css('.namerep .tanggal::text').get()
 
     def get_date(self, response):
         date = self.get_date_post_local_time(response)
         if date:
             return date_parse(date)
+
+    def get_tags(self, response):
+        return response.css('.detail-tag a::text').getall()
