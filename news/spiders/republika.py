@@ -34,7 +34,8 @@ class RepublikaSpider(scrapy.Spider):
             item['author'] = self.get_author(response)
             item['title'] = self.get_title(response)
             item['link'] = response.url
-            item['content'] = self.get_content(response)
+            item['tags'] = self.get_tags(response)
+            item['source'] = self.name
             return item
 
     def get_content(self, response):
@@ -80,3 +81,6 @@ class RepublikaSpider(scrapy.Spider):
         if date:
             return date_parse(date)
         return None
+
+    def get_tags(self, response):
+        return response.css('.wrap_blok_tag a::text').getall()
