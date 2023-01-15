@@ -40,7 +40,8 @@ class SindoSpider(scrapy.Spider):
         item['author'] = self.get_author(response)
         item['title'] = self.get_title(response)
         item['link'] = response.url
-        item['content'] = self.get_content(response)
+        item['tags'] = self.get_tags(response)
+        item['source'] = self.name
         return item
 
     def get_author(self, response):
@@ -77,4 +78,10 @@ class SindoSpider(scrapy.Spider):
         date = self.get_date_post_local_time(response)
         if date:
             return date_parse(date)
+        return None
+
+    def get_tags(self, response):
+        tags = response.css('.article-tags a::text').getall()
+        if tags:
+            return tags
         return None
