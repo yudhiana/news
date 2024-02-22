@@ -6,7 +6,7 @@ cffi==1.15.1
 chardet==5.0.0
 charset-normalizer==2.1.1
 constantly==15.1.0
-cryptography==39.0.1
+cryptography==42.0.4
 cssselect==1.1.0
 elastic-transport==8.4.0
 elasticsearch==7.0.0
